@@ -1,7 +1,9 @@
 use crate::player::PlayerPlugin;
 use bevy::prelude::*;
 
+mod components;
 mod player;
+mod systems;
 
 fn main() {
     App::new()
