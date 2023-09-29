@@ -1,4 +1,4 @@
-use crate::components::{AnimationTimer, Direction};
+use crate::components::{Animation, Direction};
 use crate::player::components::Player;
 use bevy::ecs::query::QuerySingleError;
 use bevy::prelude::*;
@@ -20,7 +20,11 @@ pub fn setup(
             texture_atlas: texture_atlas_handle,
             ..default()
         },
-        AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)),
+        Animation {
+            timer: Timer::from_seconds(0.2, TimerMode::Repeating),
+            frames: vec![0, 1],
+            current_frame: 0,
+        },
     ));
 }
 
@@ -38,21 +42,6 @@ pub fn horizontal_movement(
         *player_direction = Direction::Right;
     }
     transform.translation += direction * player.speed * time.delta_seconds();
-
-    Ok(())
-}
-
-pub fn animate(
-    time: Res<Time>,
-    mut query: Query<(&mut AnimationTimer, &mut TextureAtlasSprite, &Direction), With<Player>>,
-) -> Result<(), QuerySingleError> {
-    let (mut timer, mut sprite, player_direction) = query.get_single_mut()?;
-
-    timer.tick(time.delta());
-    if timer.just_finished() {
-        sprite.index = (sprite.index + 1) % 2;
-    }
-    sprite.flip_x = player_direction == &Direction::Left;
 
     Ok(())
 }

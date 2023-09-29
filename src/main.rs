@@ -1,4 +1,5 @@
 use crate::player::PlayerPlugin;
+use crate::systems::*;
 use bevy::prelude::*;
 
 mod components;
@@ -25,15 +26,6 @@ fn main() {
             PlayerPlugin,
         ))
         .add_systems(Startup, setup_camera)
+        .add_systems(Update, animate)
         .run();
-}
-
-fn setup_camera(mut commands: Commands) {
-    commands.spawn(Camera2dBundle {
-        projection: OrthographicProjection {
-            scale: 0.1,
-            ..Camera2dBundle::default().projection
-        },
-        ..default()
-    });
 }

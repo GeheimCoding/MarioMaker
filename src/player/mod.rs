@@ -9,12 +9,7 @@ pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, setup).add_systems(
-            Update,
-            (
-                horizontal_movement.pipe(error_handler),
-                animate.pipe(error_handler),
-            ),
-        );
+        app.add_systems(Startup, setup)
+            .add_systems(Update, horizontal_movement.pipe(error_handler));
     }
 }

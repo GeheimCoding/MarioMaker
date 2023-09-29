@@ -6,5 +6,9 @@ pub enum Direction {
     Right,
 }
 
-#[derive(Component, Deref, DerefMut)]
-pub struct AnimationTimer(pub Timer);
+#[derive(Component)]
+pub struct Animation {
+    pub timer: Timer,
+    pub frames: Vec<usize>,
+    pub current_frame: usize,
+}
