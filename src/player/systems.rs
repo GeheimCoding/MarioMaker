@@ -1,5 +1,5 @@
 use crate::components::{Animation, Direction};
-use crate::player::components::Player;
+use crate::player::components::{Player, State};
 use bevy::ecs::query::QuerySingleError;
 use bevy::prelude::*;
 
@@ -15,31 +15,51 @@ pub fn setup(
 
     commands.spawn((
         Player { speed: 80.0 },
+        State::Idle,
         Direction::Right,
         SpriteSheetBundle {
             texture_atlas: texture_atlas_handle,
             ..default()
         },
-        Animation {
-            timer: Timer::from_seconds(0.2, TimerMode::Repeating),
-            frames: vec![0, 1],
-            current_frame: 0,
-        },
+        get_animation(State::Idle),
     ));
+}
+
+pub fn change_animation(
+    mut query: Query<
+        (&mut TextureAtlasSprite, &mut Animation, &State),
+        (With<Player>, Changed<State>),
+    >,
+    mut last_state: Local<State>,
+) -> Result<(), QuerySingleError> {
+    let (mut sprite, mut animation, &state) = query.get_single_mut()?;
+    if *last_state == state {
+        return Ok(());
+    }
+
+    *last_state = state;
+    *animation = get_animation(state);
+    sprite.index = animation.frames[animation.frame_index];
+
+    Ok(())
 }
 
 pub fn horizontal_movement(
     time: Res<Time>,
     keyboard_input: Res<Input<KeyCode>>,
-    mut query: Query<(&mut Transform, &mut Direction, &Player)>,
+    mut query: Query<(&mut Transform, &mut Direction, &mut State, &Player)>,
 ) -> Result<(), QuerySingleError> {
-    let (mut transform, mut player_direction, player) = query.get_single_mut()?;
-
+    let (mut transform, mut player_direction, mut state, player) = query.get_single_mut()?;
     let direction = get_direction(keyboard_input);
+
     if direction.x < 0.0 {
         *player_direction = Direction::Left;
+        *state = State::Walking;
     } else if direction.x > 0.0 {
         *player_direction = Direction::Right;
+        *state = State::Walking;
+    } else {
+        *state = State::Idle;
     }
     transform.translation += direction * player.speed * time.delta_seconds();
 
@@ -55,4 +75,19 @@ fn get_direction(keyboard_input: Res<Input<KeyCode>>) -> Vec3 {
         direction.x += 1.0;
     }
     Vec3::new(direction.x, direction.y, 0.0)
+}
+
+fn get_animation(state: State) -> Animation {
+    match state {
+        State::Idle => Animation {
+            timer: default(),
+            frames: vec![0],
+            frame_index: 0,
+        },
+        State::Walking => Animation {
+            timer: Timer::from_seconds(0.15, TimerMode::Repeating),
+            frames: vec![0, 1],
+            frame_index: 1,
+        },
+    }
 }

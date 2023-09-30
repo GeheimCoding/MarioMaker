@@ -10,5 +10,5 @@ pub enum Direction {
 pub struct Animation {
     pub timer: Timer,
     pub frames: Vec<usize>,
-    pub current_frame: usize,
+    pub frame_index: usize,
 }

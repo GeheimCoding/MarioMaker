@@ -25,7 +25,8 @@ pub fn animate(
     for (mut animation, mut sprite, direction) in query.iter_mut() {
         animation.timer.tick(time.delta());
         if animation.timer.just_finished() {
-            sprite.index = (sprite.index + 1) % 2;
+            animation.frame_index = (animation.frame_index + 1) % animation.frames.len();
+            sprite.index = animation.frames[animation.frame_index];
         }
         if let Some(direction) = direction {
             sprite.flip_x = direction == &Direction::Left;
