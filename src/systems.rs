@@ -23,8 +23,7 @@ pub fn animate(
     mut query: Query<(&mut Animation, &mut TextureAtlasSprite, Option<&Direction>)>,
 ) {
     for (mut animation, mut sprite, direction) in query.iter_mut() {
-        animation.timer.tick(time.delta());
-        if animation.timer.just_finished() {
+        if animation.timer.tick(time.delta()).just_finished() {
             animation.frame_index = (animation.frame_index + 1) % animation.frames.len();
             sprite.index = animation.frames[animation.frame_index];
         }

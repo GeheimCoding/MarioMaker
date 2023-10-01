@@ -6,7 +6,7 @@ pub enum Direction {
     Right,
 }
 
-#[derive(Component)]
+#[derive(Clone, Component)]
 pub struct Animation {
     pub timer: Timer,
     pub frames: Vec<usize>,
