@@ -26,6 +26,6 @@ fn main() {
             PlayerPlugin,
         ))
         .add_systems(Startup, setup_camera)
-        .add_systems(Update, animate)
+        .add_systems(Update, (animate, apply_friction))
         .run();
 }

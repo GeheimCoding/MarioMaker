@@ -1,4 +1,4 @@
-use crate::components::{Animation, Direction};
+use crate::components::{Acceleration, Animation, Direction, Velocity};
 use bevy::prelude::*;
 use std::fmt::Debug;
 
@@ -29,6 +29,17 @@ pub fn animate(
         }
         if let Some(direction) = direction {
             sprite.flip_x = direction == &Direction::Left;
+        }
+    }
+}
+
+pub fn apply_friction(time: Res<Time>, mut query: Query<(&mut Velocity, &Acceleration)>) {
+    for (mut velocity, acceleration) in query.iter_mut() {
+        let change = acceleration.0 * time.delta_seconds();
+        if velocity.value > 0.0 {
+            velocity.value = (velocity.value - change).clamp(0.0, velocity.value);
+        } else if velocity.value < 0.0 {
+            velocity.value = (velocity.value + change).clamp(velocity.value, 0.0);
         }
     }
 }
