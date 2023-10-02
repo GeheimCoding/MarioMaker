@@ -17,7 +17,8 @@ impl Plugin for PlayerPlugin {
             .add_systems(
                 Update,
                 (
-                    change_animation.pipe(error_handler),
+                    change_state,
+                    change_animation,
                     horizontal_movement.pipe(error_handler),
                 ),
             );

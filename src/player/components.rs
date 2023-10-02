@@ -9,3 +9,6 @@ pub enum State {
     Idle,
     Walking,
 }
+
+#[derive(Component)]
+pub struct Acceleration(pub f32);

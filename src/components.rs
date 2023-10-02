@@ -8,18 +8,18 @@ pub enum Direction {
 
 #[derive(Component)]
 pub struct Velocity {
-    pub value: f32,
-    pub max: f32,
+    pub value: Vec2,
+    pub max: Vec2,
 }
 
 impl Velocity {
-    pub fn with_max(max: f32) -> Self {
-        Velocity { value: 0.0, max }
+    pub fn with_max(max: Vec2) -> Self {
+        Velocity {
+            value: Vec2::ZERO,
+            max,
+        }
     }
 }
-
-#[derive(Component)]
-pub struct Acceleration(pub f32);
 
 #[derive(Clone, Component)]
 pub struct Animation {
