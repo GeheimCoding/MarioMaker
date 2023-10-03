@@ -24,13 +24,15 @@ impl FromWorld for Textures {
     }
 }
 
+pub const MIN_ANIMATION_DURATION: f32 = 0.1;
+
 impl Default for Animations {
     fn default() -> Self {
         let animations = HashMap::from([
             (
                 State::Idle,
                 Animation {
-                    timer: default(),
+                    timer: Timer::from_seconds(MIN_ANIMATION_DURATION, TimerMode::Once),
                     frames: vec![0],
                     frame_index: 0,
                 },

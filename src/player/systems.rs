@@ -1,6 +1,6 @@
 use crate::components::{Animation, Direction, Velocity};
 use crate::player::components::{Acceleration, Player, State};
-use crate::player::resources::{Animations, Texture, Textures};
+use crate::player::resources::{Animations, Texture, Textures, MIN_ANIMATION_DURATION};
 use bevy::ecs::query::QuerySingleError;
 use bevy::prelude::*;
 
@@ -41,10 +41,14 @@ pub fn change_animation(
         if *last_state == state {
             return;
         }
+        let reset_sprite_index =
+            animation.timer.elapsed_secs() >= MIN_ANIMATION_DURATION || *last_state == State::Idle;
 
         *last_state = state;
         *animation = animations.get(&state);
-        sprite.index = animation.frames[animation.frame_index];
+        if reset_sprite_index {
+            sprite.index = animation.frames[animation.frame_index]
+        }
     }
 }
 
@@ -72,14 +76,14 @@ pub fn horizontal_movement(
     }
 
     player_velocity.value.x = if is_moving {
-        let factor = if direction.abs() > 0.0 && direction.signum() - velocity.signum() != 0.0 {
-            1.5
-        } else {
+        let factor = if direction.signum() == velocity.signum() {
             1.0
+        } else {
+            3.0
         };
         (velocity + direction * acceleration * factor).clamp(-max_velocity, max_velocity)
     } else {
-        apply_friction(velocity, acceleration)
+        apply_friction(velocity, acceleration * 1.2)
     };
     transform.translation.x += velocity * time.delta_seconds();
 
