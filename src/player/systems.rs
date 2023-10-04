@@ -1,4 +1,4 @@
-use crate::components::{Animation, Direction, Velocity};
+use crate::components::{Animation, Direction, Gravity, Velocity};
 use crate::player::components::{Acceleration, Player, State};
 use crate::player::resources::{Animations, Texture, Textures, MIN_ANIMATION_DURATION};
 use bevy::ecs::query::QuerySingleError;
@@ -7,8 +7,9 @@ use bevy::prelude::*;
 pub fn spawn(mut commands: Commands, textures: Res<Textures>, animations: Res<Animations>) {
     commands.spawn((
         Player,
-        Velocity::with_max(Vec2::new(80.0, 0.0)),
+        Velocity::with_max(Vec2::new(80.0, 100.0)),
         Acceleration(350.0),
+        Gravity(100.0),
         State::Idle,
         Direction::Right,
         SpriteSheetBundle {
@@ -87,6 +88,21 @@ pub fn horizontal_movement(
     };
     transform.translation.x += velocity * time.delta_seconds();
 
+    Ok(())
+}
+
+pub fn vertical_movement(
+    time: Res<Time>,
+    mut query: Query<(&mut Transform, &mut Velocity), With<Player>>,
+) -> Result<(), QuerySingleError> {
+    let (mut transform, mut velocity) = query.get_single_mut()?;
+    let threshold = -20.0;
+
+    transform.translation.y += velocity.value.y * time.delta_seconds();
+    if transform.translation.y < threshold {
+        velocity.value.y = 0.0;
+        transform.translation.y = threshold;
+    }
     Ok(())
 }
 

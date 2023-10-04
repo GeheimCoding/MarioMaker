@@ -27,3 +27,6 @@ pub struct Animation {
     pub frames: Vec<usize>,
     pub frame_index: usize,
 }
+
+#[derive(Component)]
+pub struct Gravity(pub f32);

@@ -1,4 +1,4 @@
-use crate::components::{Animation, Direction};
+use crate::components::{Animation, Direction, Gravity, Velocity};
 use bevy::prelude::*;
 use std::fmt::Debug;
 
@@ -30,5 +30,12 @@ pub fn animate(
         if let Some(direction) = direction {
             sprite.flip_x = direction == &Direction::Left;
         }
+    }
+}
+
+pub fn apply_gravity(time: Res<Time>, mut query: Query<(&mut Velocity, &Gravity)>) {
+    for (mut velocity, gravity) in query.iter_mut() {
+        velocity.value.y =
+            (velocity.value.y - gravity.0 * time.delta_seconds()).min(-velocity.max.y);
     }
 }

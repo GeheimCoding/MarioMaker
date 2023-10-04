@@ -20,6 +20,7 @@ impl Plugin for PlayerPlugin {
                     change_state,
                     change_animation,
                     horizontal_movement.pipe(error_handler),
+                    vertical_movement.pipe(error_handler),
                 ),
             );
     }
