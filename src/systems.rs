@@ -35,7 +35,7 @@ pub fn animate(
 
 pub fn apply_gravity(time: Res<Time>, mut query: Query<(&mut Velocity, &Gravity)>) {
     for (mut velocity, gravity) in query.iter_mut() {
-        velocity.value.y =
-            (velocity.value.y - gravity.0 * time.delta_seconds()).min(-velocity.max.y);
+        velocity.value.y = (velocity.value.y - gravity.0 * time.delta_seconds())
+            .clamp(-velocity.max.y, velocity.value.y);
     }
 }

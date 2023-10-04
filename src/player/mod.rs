@@ -17,10 +17,11 @@ impl Plugin for PlayerPlugin {
             .add_systems(
                 Update,
                 (
+                    jump,
                     change_state,
                     change_animation,
-                    horizontal_movement.pipe(error_handler),
                     vertical_movement.pipe(error_handler),
+                    horizontal_movement.pipe(error_handler),
                 ),
             );
     }

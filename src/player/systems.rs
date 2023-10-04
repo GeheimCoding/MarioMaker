@@ -1,5 +1,5 @@
 use crate::components::{Animation, Direction, Gravity, Velocity};
-use crate::player::components::{Acceleration, Player, State};
+use crate::player::components::{Acceleration, Jumping, Player, State};
 use crate::player::resources::{Animations, Texture, Textures, MIN_ANIMATION_DURATION};
 use bevy::ecs::query::QuerySingleError;
 use bevy::prelude::*;
@@ -7,9 +7,9 @@ use bevy::prelude::*;
 pub fn spawn(mut commands: Commands, textures: Res<Textures>, animations: Res<Animations>) {
     commands.spawn((
         Player,
-        Velocity::with_max(Vec2::new(80.0, 100.0)),
+        Velocity::with_max(Vec2::new(100.0, 400.0)),
         Acceleration(350.0),
-        Gravity(100.0),
+        Gravity(1200.0),
         State::Idle,
         Direction::Right,
         SpriteSheetBundle {
@@ -92,18 +92,35 @@ pub fn horizontal_movement(
 }
 
 pub fn vertical_movement(
+    mut commands: Commands,
     time: Res<Time>,
-    mut query: Query<(&mut Transform, &mut Velocity), With<Player>>,
+    mut query: Query<(Entity, &mut Transform, &mut Velocity), With<Player>>,
 ) -> Result<(), QuerySingleError> {
-    let (mut transform, mut velocity) = query.get_single_mut()?;
+    let (entity, mut transform, mut velocity) = query.get_single_mut()?;
     let threshold = -20.0;
 
     transform.translation.y += velocity.value.y * time.delta_seconds();
     if transform.translation.y < threshold {
         velocity.value.y = 0.0;
         transform.translation.y = threshold;
+        commands.entity(entity).remove::<Jumping>();
     }
     Ok(())
+}
+
+pub fn jump(
+    mut commands: Commands,
+    keyboard_input: Res<Input<KeyCode>>,
+    mut query: Query<(Entity, &mut Velocity), (With<Player>, Without<Jumping>)>,
+) {
+    if query.is_empty() {
+        return;
+    }
+    if keyboard_input.any_just_pressed(vec![KeyCode::Space, KeyCode::Up, KeyCode::W]) {
+        let (entity, mut velocity) = query.get_single_mut().unwrap();
+        commands.entity(entity).insert(Jumping);
+        velocity.value.y = 250.0;
+    }
 }
 
 fn get_horizontal_direction(keyboard_input: Res<Input<KeyCode>>) -> f32 {
