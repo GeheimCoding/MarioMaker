@@ -1,6 +1,6 @@
-use crate::components::{Animation, Direction, Gravity, Velocity};
+use crate::components::{Animation, Direction, Gravity, Velocity, MIN_ANIMATION_DURATION};
 use crate::player::components::{Acceleration, Jumping, Player, State};
-use crate::player::resources::{Animations, Texture, Textures, MIN_ANIMATION_DURATION};
+use crate::player::resources::{Animations, Texture, Textures};
 use bevy::ecs::query::QuerySingleError;
 use bevy::prelude::*;
 
@@ -20,9 +20,13 @@ pub fn spawn(mut commands: Commands, textures: Res<Textures>, animations: Res<An
     ));
 }
 
-pub fn change_state(mut query: Query<(&mut State, &Velocity), (With<Player>, Changed<Velocity>)>) {
-    for (mut state, velocity) in query.iter_mut() {
-        if velocity.value.x.abs() > 0.0 {
+pub fn change_state(
+    mut query: Query<(&mut State, &Velocity, Option<&Jumping>), (With<Player>, Changed<Velocity>)>,
+) {
+    for (mut state, velocity, jumping) in query.iter_mut() {
+        if jumping.is_some() {
+            *state = State::Jumping;
+        } else if velocity.value.x.abs() > 0.0 {
             *state = State::Walking;
         } else {
             *state = State::Idle;

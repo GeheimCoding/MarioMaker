@@ -18,35 +18,20 @@ impl FromWorld for Textures {
     fn from_world(world: &mut World) -> Self {
         let textures = HashMap::from([(
             Texture::Mario,
-            get_handle(world, "textures/mario.png", Vec2::new(16.0, 24.0), 2, 1),
+            get_handle(world, "textures/mario.png", Vec2::new(16.0, 24.0), 3, 1),
         )]);
-        Textures(textures)
+        Self(textures)
     }
 }
-
-pub const MIN_ANIMATION_DURATION: f32 = 0.1;
 
 impl Default for Animations {
     fn default() -> Self {
         let animations = HashMap::from([
-            (
-                State::Idle,
-                Animation {
-                    timer: Timer::from_seconds(MIN_ANIMATION_DURATION, TimerMode::Once),
-                    frames: vec![0],
-                    frame_index: 0,
-                },
-            ),
-            (
-                State::Walking,
-                Animation {
-                    timer: Timer::from_seconds(0.15, TimerMode::Repeating),
-                    frames: vec![0, 1],
-                    frame_index: 1,
-                },
-            ),
+            (State::Idle, Animation::once(0)),
+            (State::Walking, Animation::repeating(0.15, vec![0, 1], 1)),
+            (State::Jumping, Animation::once(2)),
         ]);
-        Animations(animations)
+        Self(animations)
     }
 }
 
