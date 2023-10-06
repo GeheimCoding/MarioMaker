@@ -11,7 +11,7 @@ pub fn error_handler<E: Debug>(In(result): In<Result<(), E>>) {
 pub fn setup_camera(mut commands: Commands) {
     commands.spawn(Camera2dBundle {
         projection: OrthographicProjection {
-            scale: 0.1,
+            scale: 0.25,
             ..Camera2dBundle::default().projection
         },
         ..default()

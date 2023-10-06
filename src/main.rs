@@ -1,10 +1,12 @@
 use crate::player::PlayerPlugin;
 use crate::systems::*;
+use crate::world::WorldPlugin;
 use bevy::prelude::*;
 
 mod components;
 mod player;
 mod systems;
+mod world;
 
 fn main() {
     App::new()
@@ -24,6 +26,7 @@ fn main() {
                 })
                 .set(ImagePlugin::default_nearest()),
             PlayerPlugin,
+            WorldPlugin,
         ))
         .add_systems(Startup, setup_camera)
         .add_systems(Update, (animate, apply_gravity))

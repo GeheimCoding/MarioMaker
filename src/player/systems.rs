@@ -67,30 +67,29 @@ pub fn horizontal_movement(
     let direction = get_horizontal_direction(keyboard_input);
     let is_moving = direction != 0.0;
     let max_velocity = player_velocity.max.x;
+    let velocity = &mut player_velocity.value.x;
     let acceleration = acceleration.0 * time.delta_seconds();
-    let velocity = player_velocity.value.x;
 
-    if velocity == 0.0 && !is_moving {
+    if *velocity == 0.0 && !is_moving {
         return Ok(());
     }
-
     if direction < 0.0 {
         *player_direction = Direction::Left;
     } else if direction > 0.0 {
         *player_direction = Direction::Right;
     }
 
-    player_velocity.value.x = if is_moving {
+    *velocity = if is_moving {
         let factor = if direction.signum() == velocity.signum() {
             1.0
         } else {
             3.0
         };
-        (velocity + direction * acceleration * factor).clamp(-max_velocity, max_velocity)
+        (*velocity + direction * acceleration * factor).clamp(-max_velocity, max_velocity)
     } else {
-        apply_friction(velocity, acceleration * 1.2)
+        apply_friction(*velocity, acceleration * 1.2)
     };
-    transform.translation.x += velocity * time.delta_seconds();
+    transform.translation.x += *velocity * time.delta_seconds();
 
     Ok(())
 }
