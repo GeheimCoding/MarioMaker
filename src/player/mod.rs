@@ -1,6 +1,5 @@
 use crate::player::resources::Animations;
 use crate::player::systems::*;
-use crate::systems::*;
 use bevy::prelude::*;
 
 mod components;
@@ -22,11 +21,7 @@ impl Plugin for PlayerPlugin {
             .add_systems(Startup, spawn)
             .add_systems(
                 Update,
-                (
-                    jump,
-                    vertical_movement.after(jump),
-                    horizontal_movement.pipe(error_handler),
-                )
+                (jump, horizontal_movement, vertical_movement.after(jump))
                     .in_set(UpdateSet::Movement),
             )
             .add_systems(Update, confine_in_window.in_set(UpdateSet::Confinement))

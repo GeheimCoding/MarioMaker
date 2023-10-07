@@ -2,7 +2,6 @@ use crate::components::{Animation, Camera, Direction, Gravity, Velocity, MIN_ANI
 use crate::content_manager::{TextureData, Textures};
 use crate::player::components::{Acceleration, Jumping, Player, State};
 use crate::player::resources::{Animations, Texture};
-use bevy::ecs::query::QuerySingleError;
 use bevy::prelude::*;
 
 pub fn init(
@@ -41,6 +40,8 @@ pub fn spawn(
             ..default()
         },
         animations.get(&State::Idle),
+        // this prevents being able to jump when spawning in mid-air
+        Jumping,
     ));
 }
 
@@ -85,9 +86,9 @@ pub fn horizontal_movement(
     time: Res<Time>,
     keyboard_input: Res<Input<KeyCode>>,
     mut query: Query<(&mut Transform, &mut Direction, &mut Velocity, &Acceleration), With<Player>>,
-) -> Result<(), QuerySingleError> {
+) {
     let (mut transform, mut player_direction, mut player_velocity, acceleration) =
-        query.get_single_mut()?;
+        query.single_mut();
     let direction = get_horizontal_direction(keyboard_input);
     let is_moving = direction != 0.0;
     let max_velocity = player_velocity.max.x;
@@ -95,7 +96,7 @@ pub fn horizontal_movement(
     let acceleration = acceleration.0 * time.delta_seconds();
 
     if *velocity == 0.0 && !is_moving {
-        return Ok(());
+        return;
     }
     if direction < 0.0 {
         *player_direction = Direction::Left;
@@ -114,8 +115,6 @@ pub fn horizontal_movement(
         apply_friction(*velocity, acceleration * 1.2)
     };
     transform.translation.x += *velocity * time.delta_seconds();
-
-    Ok(())
 }
 
 pub fn vertical_movement(
