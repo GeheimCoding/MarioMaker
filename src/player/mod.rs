@@ -9,6 +9,12 @@ mod systems;
 
 pub struct PlayerPlugin;
 
+#[derive(Clone, Debug, Eq, Hash, PartialEq, SystemSet)]
+enum UpdateSet {
+    Movement,
+    Confinement,
+}
+
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<Animations>()
@@ -18,12 +24,13 @@ impl Plugin for PlayerPlugin {
                 Update,
                 (
                     jump,
-                    change_state,
-                    change_animation,
                     vertical_movement.after(jump),
                     horizontal_movement.pipe(error_handler),
-                    confine_in_window.after(vertical_movement),
-                ),
-            );
+                )
+                    .in_set(UpdateSet::Movement),
+            )
+            .add_systems(Update, confine_in_window.in_set(UpdateSet::Confinement))
+            .add_systems(Update, (change_state, change_animation))
+            .configure_set(Update, UpdateSet::Movement.before(UpdateSet::Confinement));
     }
 }
