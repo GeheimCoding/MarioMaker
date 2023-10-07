@@ -4,6 +4,7 @@ use crate::world::WorldPlugin;
 use bevy::prelude::*;
 
 mod components;
+mod content_manager;
 mod player;
 mod systems;
 mod world;

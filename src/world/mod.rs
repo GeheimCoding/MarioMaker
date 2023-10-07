@@ -1,5 +1,4 @@
-use crate::world::resources::Textures;
-use crate::world::systems::spawn;
+use crate::world::systems::{init, spawn};
 use bevy::prelude::*;
 
 mod components;
@@ -10,6 +9,7 @@ pub struct WorldPlugin;
 
 impl Plugin for WorldPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<Textures>().add_systems(Startup, spawn);
+        app.add_systems(PreStartup, init)
+            .add_systems(Startup, spawn);
     }
 }

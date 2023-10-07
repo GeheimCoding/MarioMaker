@@ -1,4 +1,4 @@
-use crate::player::resources::{Animations, Textures};
+use crate::player::resources::Animations;
 use crate::player::systems::*;
 use crate::systems::*;
 use bevy::prelude::*;
@@ -11,8 +11,8 @@ pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<Textures>()
-            .init_resource::<Animations>()
+        app.init_resource::<Animations>()
+            .add_systems(PreStartup, init)
             .add_systems(Startup, spawn)
             .add_systems(
                 Update,

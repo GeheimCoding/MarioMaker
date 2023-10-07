@@ -1,10 +1,34 @@
 use crate::components::{Animation, Direction, Gravity, Velocity, MIN_ANIMATION_DURATION};
+use crate::content_manager::{TextureData, Textures};
 use crate::player::components::{Acceleration, Jumping, Player, State};
-use crate::player::resources::{Animations, Texture, Textures};
+use crate::player::resources::{Animations, Texture};
 use bevy::ecs::query::QuerySingleError;
 use bevy::prelude::*;
 
-pub fn spawn(mut commands: Commands, textures: Res<Textures>, animations: Res<Animations>) {
+pub fn init(
+    commands: Commands,
+    asset_server: Res<AssetServer>,
+    texture_atlases: ResMut<Assets<TextureAtlas>>,
+) {
+    Textures::init(
+        commands,
+        asset_server,
+        texture_atlases,
+        vec![TextureData {
+            texture: Texture::Mario,
+            path: "textures/mario.png".to_owned(),
+            tile_size: Vec2::new(16.0, 24.0),
+            columns: 3,
+            rows: 1,
+        }],
+    );
+}
+
+pub fn spawn(
+    mut commands: Commands,
+    textures: Res<Textures<Texture>>,
+    animations: Res<Animations>,
+) {
     commands.spawn((
         Player,
         Velocity::with_max(Vec2::new(100.0, 400.0)),
