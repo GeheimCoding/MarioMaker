@@ -1,5 +1,8 @@
 use bevy::prelude::*;
 
+#[derive(Component)]
+pub struct Camera;
+
 #[derive(Component, PartialEq)]
 pub enum Direction {
     Left,

@@ -20,8 +20,9 @@ impl Plugin for PlayerPlugin {
                     jump,
                     change_state,
                     change_animation,
-                    vertical_movement.pipe(error_handler),
+                    vertical_movement.after(jump),
                     horizontal_movement.pipe(error_handler),
+                    confine_in_window.after(vertical_movement),
                 ),
             );
     }

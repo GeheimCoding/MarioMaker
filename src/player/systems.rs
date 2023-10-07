@@ -1,4 +1,4 @@
-use crate::components::{Animation, Direction, Gravity, Velocity, MIN_ANIMATION_DURATION};
+use crate::components::{Animation, Camera, Direction, Gravity, Velocity, MIN_ANIMATION_DURATION};
 use crate::content_manager::{TextureData, Textures};
 use crate::player::components::{Acceleration, Jumping, Player, State};
 use crate::player::resources::{Animations, Texture};
@@ -119,20 +119,11 @@ pub fn horizontal_movement(
 }
 
 pub fn vertical_movement(
-    mut commands: Commands,
     time: Res<Time>,
-    mut query: Query<(Entity, &mut Transform, &mut Velocity), With<Player>>,
-) -> Result<(), QuerySingleError> {
-    let (entity, mut transform, mut velocity) = query.get_single_mut()?;
-    let threshold = -20.0;
-
+    mut query: Query<(&mut Transform, &Velocity), With<Player>>,
+) {
+    let (mut transform, velocity) = query.single_mut();
     transform.translation.y += velocity.value.y * time.delta_seconds();
-    if transform.translation.y < threshold {
-        velocity.value.y = 0.0;
-        transform.translation.y = threshold;
-        commands.entity(entity).remove::<Jumping>();
-    }
-    Ok(())
 }
 
 pub fn jump(
@@ -144,9 +135,48 @@ pub fn jump(
         return;
     }
     if keyboard_input.any_just_pressed(vec![KeyCode::Space, KeyCode::Up, KeyCode::W]) {
-        let (entity, mut velocity) = query.get_single_mut().unwrap();
+        let (entity, mut velocity) = query.single_mut();
         commands.entity(entity).insert(Jumping);
         velocity.value.y = 250.0;
+    }
+}
+
+pub fn confine_in_window(
+    mut commands: Commands,
+    texture_atlases: Res<Assets<TextureAtlas>>,
+    mut player_query: Query<
+        (Entity, &Handle<TextureAtlas>, &mut Transform, &mut Velocity),
+        With<Player>,
+    >,
+    camera_query: Query<&OrthographicProjection, With<Camera>>,
+) {
+    let (player, texture_atlas, mut player_transform, mut velocity) = player_query.single_mut();
+    let camera_rect = camera_query.single().area;
+    let half_player_size = texture_atlases.get(texture_atlas).unwrap().textures[0].max / 2.0;
+    let player_rect = get_player_rect(&player_transform, &half_player_size);
+
+    if player_rect.min.x < camera_rect.min.x {
+        velocity.value.x = 0.0;
+        player_transform.translation.x = camera_rect.min.x + half_player_size.x;
+    } else if player_rect.max.x > camera_rect.max.x {
+        velocity.value.x = 0.0;
+        player_transform.translation.x = camera_rect.max.x - half_player_size.x;
+    }
+    if player_rect.min.y < camera_rect.min.y {
+        velocity.value.y = 0.0;
+        player_transform.translation.y = camera_rect.min.y + half_player_size.y;
+        commands.entity(player).remove::<Jumping>();
+    } else if player_rect.max.y > camera_rect.max.y {
+        velocity.value.y = 0.0;
+        player_transform.translation.y = camera_rect.max.y - half_player_size.y;
+    }
+}
+
+fn get_player_rect(transform: &Transform, half_size: &Vec2) -> Rect {
+    let position = Vec2::new(transform.translation.x, transform.translation.y);
+    Rect {
+        min: position - *half_size,
+        max: position + *half_size,
     }
 }
 

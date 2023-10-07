@@ -1,4 +1,4 @@
-use crate::components::{Animation, Direction, Gravity, Velocity};
+use crate::components::{Animation, Camera, Direction, Gravity, Velocity};
 use bevy::prelude::*;
 use std::fmt::Debug;
 
@@ -9,13 +9,16 @@ pub fn error_handler<E: Debug>(In(result): In<Result<(), E>>) {
 }
 
 pub fn setup_camera(mut commands: Commands) {
-    commands.spawn(Camera2dBundle {
-        projection: OrthographicProjection {
-            scale: 0.25,
-            ..Camera2dBundle::default().projection
+    commands.spawn((
+        Camera,
+        Camera2dBundle {
+            projection: OrthographicProjection {
+                scale: 0.25,
+                ..Camera2dBundle::default().projection
+            },
+            ..default()
         },
-        ..default()
-    });
+    ));
 }
 
 pub fn animate(
