@@ -23,20 +23,27 @@ pub fn init(
 }
 
 pub fn spawn(mut commands: Commands, textures: Res<Textures<Texture>>) {
+    let texture_handle = textures.get(&Texture::Block);
+    for x in -2..4 {
+        spawn_block(&mut commands, texture_handle.clone(), x, -3);
+    }
+    spawn_block(&mut commands, texture_handle.clone(), 1, -2);
+    spawn_block(&mut commands, texture_handle.clone(), 2, -2);
+    spawn_block(&mut commands, texture_handle.clone(), 2, -1);
+}
+
+fn spawn_block(commands: &mut Commands, texture_atlas: Handle<TextureAtlas>, x: isize, y: isize) {
     commands.spawn((
         Block,
         SpriteSheetBundle {
-            texture_atlas: textures.get(&Texture::Block),
-            transform: Transform::from_translation(position_to_translation(get_tile_position(
-                1, 0,
+            texture_atlas,
+            transform: Transform::from_translation(position_to_translation(Vec2::new(
+                x as f32 * TILE_SIZE,
+                y as f32 * TILE_SIZE,
             ))),
             ..default()
         },
     ));
-}
-
-fn get_tile_position(x: isize, y: isize) -> Vec2 {
-    Vec2::new(x as f32 * TILE_SIZE, y as f32 * TILE_SIZE)
 }
 
 fn position_to_translation(position: Vec2) -> Vec3 {
