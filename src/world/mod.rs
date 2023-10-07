@@ -1,4 +1,4 @@
-use crate::world::systems::{init, spawn};
+use crate::world::systems::*;
 use bevy::prelude::*;
 
 mod components;

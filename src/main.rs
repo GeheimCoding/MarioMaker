@@ -2,6 +2,7 @@ use crate::player::PlayerPlugin;
 use crate::systems::*;
 use crate::world::WorldPlugin;
 use bevy::prelude::*;
+use bevy::window::close_on_esc;
 
 mod components;
 mod content_manager;
@@ -30,6 +31,6 @@ fn main() {
             WorldPlugin,
         ))
         .add_systems(Startup, setup_camera)
-        .add_systems(Update, (animate, apply_gravity))
+        .add_systems(Update, (animate, apply_gravity, close_on_esc))
         .run();
 }

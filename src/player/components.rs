@@ -10,9 +10,3 @@ pub enum State {
     Walking,
     Jumping,
 }
-
-#[derive(Component)]
-pub struct Acceleration(pub f32);
-
-#[derive(Component)]
-pub struct Jumping;
