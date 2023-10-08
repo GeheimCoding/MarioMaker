@@ -74,8 +74,8 @@ impl Collider {
 
     pub fn position_response(&self, rect: &Rect) -> Rect {
         Rect {
-            min: rect.min - self.offset + self.half_size(),
-            max: rect.max - self.offset - self.half_size(),
+            min: rect.min - self.offset - self.half_size(),
+            max: rect.max - self.offset + self.half_size(),
         }
     }
 

@@ -17,7 +17,15 @@ impl Plugin for MovementPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (jump, horizontal_movement, vertical_movement.after(jump)).in_set(UpdateSet::Movement),
+            (
+                horizontal_movement,
+                horizontal_collision_response,
+                jump,
+                vertical_movement,
+                vertical_collision_response,
+            )
+                .chain()
+                .in_set(UpdateSet::Movement),
         )
         .add_systems(Update, confine_in_window.in_set(UpdateSet::Confinement))
         .configure_set(Update, UpdateSet::Movement.before(UpdateSet::Confinement))
