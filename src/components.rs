@@ -53,3 +53,37 @@ impl Animation {
 
 #[derive(Component)]
 pub struct Gravity(pub f32);
+
+#[derive(Component)]
+pub struct Collider {
+    pub size: Vec2,
+    pub offset: Vec2,
+}
+
+impl Collider {
+    pub fn with_size(size: Vec2) -> Self {
+        Self {
+            size,
+            offset: Vec2::ZERO,
+        }
+    }
+
+    pub fn half_size(&self) -> Vec2 {
+        self.size / 2.0
+    }
+
+    pub fn position_response(&self, rect: &Rect) -> Rect {
+        Rect {
+            min: rect.min - self.offset + self.half_size(),
+            max: rect.max - self.offset - self.half_size(),
+        }
+    }
+
+    pub fn get_rect(&self, transform: &Transform) -> Rect {
+        let position = Vec2::new(transform.translation.x, transform.translation.y);
+        Rect {
+            min: position + self.offset - self.half_size(),
+            max: position + self.offset + self.half_size(),
+        }
+    }
+}

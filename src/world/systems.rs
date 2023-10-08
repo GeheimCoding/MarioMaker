@@ -1,3 +1,4 @@
+use crate::components::Collider;
 use crate::content_manager::{TextureData, Textures};
 use crate::world::components::{Block, TILE_SIZE};
 use crate::world::resources::Texture;
@@ -35,6 +36,7 @@ pub fn spawn(mut commands: Commands, textures: Res<Textures<Texture>>) {
 fn spawn_block(commands: &mut Commands, texture_atlas: Handle<TextureAtlas>, x: isize, y: isize) {
     commands.spawn((
         Block,
+        Collider::with_size(Vec2::splat(TILE_SIZE)),
         SpriteSheetBundle {
             texture_atlas,
             transform: Transform::from_translation(position_to_translation(Vec2::new(

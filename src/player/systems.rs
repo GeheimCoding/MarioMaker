@@ -1,4 +1,6 @@
-use crate::components::{Animation, Direction, Gravity, Velocity, MIN_ANIMATION_DURATION};
+use crate::components::{
+    Animation, Collider, Direction, Gravity, Velocity, MIN_ANIMATION_DURATION,
+};
 use crate::content_manager::{TextureData, Textures};
 use crate::player::components::{Player, State};
 use crate::player::movement::components::{Acceleration, Jumping};
@@ -31,6 +33,10 @@ pub fn spawn(
 ) {
     commands.spawn((
         Player,
+        Collider {
+            size: Vec2::new(14.0, 20.0),
+            offset: Vec2::new(0.0, -1.0),
+        },
         Velocity::with_max(Vec2::new(100.0, 400.0)),
         Acceleration(350.0),
         Gravity(1200.0),

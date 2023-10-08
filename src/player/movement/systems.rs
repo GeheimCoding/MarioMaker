@@ -1,9 +1,7 @@
-use crate::components::{Direction, Velocity};
+use crate::components::{Collider, Direction, Velocity};
 use crate::player::components::Player;
 use crate::player::movement::components::{Acceleration, Jumping};
-use crate::world::components::Block;
 use bevy::prelude::*;
-use bevy::sprite::collide_aabb::{collide, Collision};
 
 pub fn horizontal_movement(
     time: Res<Time>,
@@ -65,88 +63,28 @@ pub fn jump(
 
 pub fn confine_in_window(
     mut commands: Commands,
-    texture_atlases: Res<Assets<TextureAtlas>>,
-    mut player_query: Query<
-        (Entity, &Handle<TextureAtlas>, &mut Transform, &mut Velocity),
-        With<Player>,
-    >,
+    mut player_query: Query<(Entity, &Collider, &mut Transform, &mut Velocity), With<Player>>,
     camera_query: Query<&OrthographicProjection, With<Camera>>,
 ) {
-    let (player, texture_atlas, mut player_transform, mut velocity) = player_query.single_mut();
+    let (player, collider, mut player_transform, mut velocity) = player_query.single_mut();
     let camera_rect = camera_query.single().area;
-    let half_player_size = texture_atlases.get(texture_atlas).unwrap().textures[0].max / 2.0;
-    let player_rect = get_rect(&player_transform, &half_player_size);
+    let player_rect = collider.get_rect(&player_transform);
+    let position_response = collider.position_response(&camera_rect);
 
     if player_rect.min.x < camera_rect.min.x {
         velocity.value.x = 0.0;
-        player_transform.translation.x = camera_rect.min.x + half_player_size.x;
+        player_transform.translation.x = position_response.min.x;
     } else if player_rect.max.x > camera_rect.max.x {
         velocity.value.x = 0.0;
-        player_transform.translation.x = camera_rect.max.x - half_player_size.x;
+        player_transform.translation.x = position_response.max.x;
     }
     if player_rect.min.y < camera_rect.min.y {
         velocity.value.y = 0.0;
-        player_transform.translation.y = camera_rect.min.y + half_player_size.y;
+        player_transform.translation.y = position_response.min.y;
         commands.entity(player).remove::<Jumping>();
     } else if player_rect.max.y > camera_rect.max.y {
         velocity.value.y = 0.0;
-        player_transform.translation.y = camera_rect.max.y - half_player_size.y;
-    }
-}
-
-pub fn collision_detection(
-    mut commands: Commands,
-    texture_atlases: Res<Assets<TextureAtlas>>,
-    mut player_query: Query<
-        (Entity, &Handle<TextureAtlas>, &mut Transform, &mut Velocity),
-        With<Player>,
-    >,
-    block_query: Query<(&Transform, &Handle<TextureAtlas>), (With<Block>, Without<Player>)>,
-) {
-    let (player, player_texture, mut player_transform, mut velocity) = player_query.single_mut();
-    let player_size = texture_atlases.get(player_texture).unwrap().textures[0].max;
-
-    for (block_transform, block_texture) in block_query.iter() {
-        let block_size = texture_atlases.get(block_texture).unwrap().textures[0].max;
-        let distance = block_size / 2.0 + player_size / 2.0;
-
-        if let Some(collision) = collide(
-            player_transform.translation,
-            player_size,
-            block_transform.translation,
-            block_size,
-        ) {
-            if collision == Collision::Top {
-                velocity.value.y = 0.0;
-                player_transform.translation.y = block_transform.translation.y + distance.y;
-                commands.entity(player).remove::<Jumping>();
-            } else if collision == Collision::Bottom {
-                velocity.value.y = 0.0;
-                player_transform.translation.y = block_transform.translation.y - distance.y;
-            }
-        }
-        if let Some(collision) = collide(
-            player_transform.translation,
-            player_size,
-            block_transform.translation,
-            block_size,
-        ) {
-            if collision == Collision::Left {
-                velocity.value.x = 0.0;
-                player_transform.translation.x = block_transform.translation.x - distance.x;
-            } else if collision == Collision::Right {
-                velocity.value.x = 0.0;
-                player_transform.translation.x = block_transform.translation.x + distance.x;
-            }
-        }
-    }
-}
-
-fn get_rect(transform: &Transform, half_size: &Vec2) -> Rect {
-    let position = Vec2::new(transform.translation.x, transform.translation.y);
-    Rect {
-        min: position - *half_size,
-        max: position + *half_size,
+        player_transform.translation.y = position_response.max.y;
     }
 }
 
