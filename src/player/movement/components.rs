@@ -4,4 +4,7 @@ use bevy::prelude::*;
 pub struct Acceleration(pub f32);
 
 #[derive(Component)]
-pub struct Jumping;
+pub struct Airborne;
+
+#[derive(Component)]
+pub struct CoyoteJump(pub Timer);

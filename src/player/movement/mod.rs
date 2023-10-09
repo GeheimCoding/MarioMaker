@@ -28,6 +28,7 @@ impl Plugin for MovementPlugin {
                 .in_set(UpdateSet::Movement),
         )
         .add_systems(Update, confine_in_window.in_set(UpdateSet::Confinement))
+        .add_systems(Update, (coyote_jump, reset_coyote_jump))
         .configure_set(Update, UpdateSet::Movement.before(UpdateSet::Confinement))
         .configure_set(
             Update,

@@ -8,5 +8,5 @@ pub enum State {
     #[default]
     Idle,
     Walking,
-    Jumping,
+    Airborne,
 }

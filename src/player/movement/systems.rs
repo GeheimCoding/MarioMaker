@@ -1,6 +1,6 @@
 use crate::components::{Collider, Direction, Velocity};
 use crate::player::components::Player;
-use crate::player::movement::components::{Acceleration, Jumping};
+use crate::player::movement::components::{Acceleration, Airborne, CoyoteJump};
 use crate::world::components::Block;
 use bevy::prelude::*;
 
@@ -50,14 +50,14 @@ pub fn vertical_movement(
 pub fn jump(
     mut commands: Commands,
     keyboard_input: Res<Input<KeyCode>>,
-    mut query: Query<(Entity, &mut Velocity), (With<Player>, Without<Jumping>)>,
+    mut query: Query<(Entity, &mut Velocity), (With<Player>, Without<Airborne>)>,
 ) {
     if query.is_empty() {
         return;
     }
     if keyboard_input.any_just_pressed(vec![KeyCode::Space, KeyCode::Up, KeyCode::W]) {
         let (entity, mut velocity) = query.single_mut();
-        commands.entity(entity).insert(Jumping);
+        commands.entity(entity).insert(Airborne);
         velocity.value.y = 250.0;
     }
 }
@@ -106,7 +106,7 @@ pub fn vertical_collision_response(
                 &position_response,
             );
             if player_rect.max.y > block_rect.max.y {
-                commands.entity(player).remove::<Jumping>();
+                commands.entity(player).remove::<Airborne>();
             }
         }
     }
@@ -141,7 +141,30 @@ pub fn confine_in_window(
         &position_response,
     );
     if player_rect.min.y < camera_rect.min.y {
-        commands.entity(player).remove::<Jumping>();
+        commands.entity(player).remove::<Airborne>();
+    }
+}
+
+pub fn coyote_jump(
+    mut commands: Commands,
+    time: Res<Time>,
+    mut query: Query<(Entity, Option<&mut CoyoteJump>), With<Player>>,
+) {
+    let (player, coyote_jump) = query.single_mut();
+    if coyote_jump.is_none() {
+        return;
+    }
+    if coyote_jump.unwrap().0.tick(time.delta()).finished() {
+        commands.entity(player).insert(Airborne);
+        commands.entity(player).remove::<CoyoteJump>();
+    }
+}
+
+pub fn reset_coyote_jump(mut commands: Commands, mut removed: RemovedComponents<Airborne>) {
+    for entity in removed.iter() {
+        commands
+            .entity(entity)
+            .insert(CoyoteJump(Timer::from_seconds(0.08, TimerMode::Once)));
     }
 }
 

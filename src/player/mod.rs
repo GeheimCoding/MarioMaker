@@ -18,7 +18,7 @@ impl Plugin for PlayerPlugin {
             .add_systems(Startup, spawn)
             .add_systems(
                 Update,
-                (change_state, change_animation).in_set(UpdateSet::ChangeDetection),
+                (handle_velocity_change, handle_state_change).in_set(UpdateSet::ChangeDetection),
             );
     }
 }

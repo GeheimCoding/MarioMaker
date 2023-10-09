@@ -3,7 +3,7 @@ use crate::components::{
 };
 use crate::content_manager::{TextureData, Textures};
 use crate::player::components::{Player, State};
-use crate::player::movement::components::{Acceleration, Jumping};
+use crate::player::movement::components::{Acceleration, Airborne, CoyoteJump};
 use crate::player::resources::{Animations, Texture};
 use bevy::prelude::*;
 
@@ -47,26 +47,41 @@ pub fn spawn(
             ..default()
         },
         animations.get(&State::Idle),
-        // this prevents being able to jump when spawning in mid-air
-        Jumping,
+        // this prevents being able to jump right away when spawning in mid-air
+        Airborne,
     ));
 }
 
-pub fn change_state(
-    mut query: Query<(&mut State, &Velocity, Option<&Jumping>), (With<Player>, Changed<Velocity>)>,
+pub fn handle_velocity_change(
+    mut query: Query<
+        (
+            &mut State,
+            &Velocity,
+            Option<&Airborne>,
+            Option<&mut CoyoteJump>,
+        ),
+        (With<Player>, Changed<Velocity>),
+    >,
 ) {
-    for (mut state, velocity, jumping) in query.iter_mut() {
-        if jumping.is_some() {
-            *state = State::Jumping;
-        } else if velocity.value.x.abs() > 0.0 {
-            *state = State::Walking;
-        } else {
-            *state = State::Idle;
+    if query.is_empty() {
+        return;
+    }
+    let (mut state, velocity, airborne, coyote_jump) = query.single_mut();
+    if airborne.is_some() {
+        *state = State::Airborne;
+    } else if velocity.value.x.abs() > 0.0 {
+        *state = State::Walking;
+    } else {
+        *state = State::Idle;
+    }
+    if velocity.value.y == 0.0 {
+        if let Some(mut coyote_jump) = coyote_jump {
+            coyote_jump.0.reset();
         }
     }
 }
 
-pub fn change_animation(
+pub fn handle_state_change(
     animations: Res<Animations>,
     mut query: Query<
         (&mut TextureAtlasSprite, &mut Animation, &State),
