@@ -1,6 +1,6 @@
 use crate::components::{Collider, Direction, Velocity};
 use crate::player::components::Player;
-use crate::player::movement::components::{Acceleration, Airborne, CoyoteJump};
+use crate::player::movement::components::{Acceleration, Airborne, CoyoteJump, JumpBuffer};
 use crate::world::components::Block;
 use bevy::prelude::*;
 
@@ -49,16 +49,41 @@ pub fn vertical_movement(
 
 pub fn jump(
     mut commands: Commands,
+    time: Res<Time>,
     keyboard_input: Res<Input<KeyCode>>,
-    mut query: Query<(Entity, &mut Velocity), (With<Player>, Without<Airborne>)>,
+    mut query: Query<
+        (
+            Entity,
+            &mut Velocity,
+            Option<&Airborne>,
+            Option<&mut JumpBuffer>,
+        ),
+        With<Player>,
+    >,
 ) {
-    if query.is_empty() {
-        return;
-    }
-    if keyboard_input.any_just_pressed(vec![KeyCode::Space, KeyCode::Up, KeyCode::W]) {
-        let (entity, mut velocity) = query.single_mut();
+    let (entity, mut velocity, airborne, jump_buffer) = query.single_mut();
+    let mut jump = |commands: &mut Commands| {
         commands.entity(entity).insert(Airborne);
         velocity.value.y = 250.0;
+    };
+
+    if keyboard_input.any_just_pressed(vec![KeyCode::Space, KeyCode::Up, KeyCode::W]) {
+        if airborne.is_some() {
+            commands
+                .entity(entity)
+                .insert(JumpBuffer(Timer::from_seconds(0.05, TimerMode::Once)));
+        } else {
+            jump(&mut commands);
+        }
+    }
+    if let Some(mut jump_buffer) = jump_buffer {
+        if !jump_buffer.0.tick(time.delta()).finished() && airborne.is_none() {
+            commands.entity(entity).remove::<JumpBuffer>();
+            jump(&mut commands);
+        }
+        if jump_buffer.0.finished() {
+            commands.entity(entity).remove::<JumpBuffer>();
+        }
     }
 }
 
