@@ -1,8 +1,9 @@
-use crate::components::Collider;
+use crate::components::{Camera, Collider};
 use crate::content_manager::{TextureData, Textures};
-use crate::world::components::{Block, TILE_SIZE};
+use crate::world::components::{Block, PreviewBlock, TILE_SIZE};
 use crate::world::resources::Texture;
 use bevy::prelude::*;
+use bevy::window::PrimaryWindow;
 
 pub fn init(
     commands: Commands,
@@ -31,6 +32,31 @@ pub fn spawn(mut commands: Commands, textures: Res<Textures<Texture>>) {
     spawn_block(&mut commands, texture_handle.clone(), 1, -2);
     spawn_block(&mut commands, texture_handle.clone(), 2, -2);
     spawn_block(&mut commands, texture_handle.clone(), 2, -1);
+    spawn_preview_block(&mut commands, texture_handle.clone());
+}
+
+// https://bevy-cheatbook.github.io/cookbook/cursor2world.html
+pub fn move_preview_block(
+    window_query: Query<&Window, With<PrimaryWindow>>,
+    mut preview_block_query: Query<&mut Transform, With<PreviewBlock>>,
+    camera_query: Query<(&bevy::render::camera::Camera, &GlobalTransform), With<Camera>>,
+) {
+    let window = window_query.single();
+    let mut transform = preview_block_query.single_mut();
+    let (camera, camera_transform) = camera_query.single();
+
+    if let Some(world_position) = window
+        .cursor_position()
+        .and_then(|cursor| camera.viewport_to_world(camera_transform, cursor))
+        .map(|ray| ray.origin.truncate())
+    {
+        let coords = (world_position + TILE_SIZE / 2.0) / TILE_SIZE;
+        transform.translation = Vec3::new(
+            coords.x.floor() * TILE_SIZE,
+            coords.y.floor() * TILE_SIZE,
+            0.0,
+        );
+    }
 }
 
 fn spawn_block(commands: &mut Commands, texture_atlas: Handle<TextureAtlas>, x: isize, y: isize) {
@@ -43,6 +69,20 @@ fn spawn_block(commands: &mut Commands, texture_atlas: Handle<TextureAtlas>, x: 
                 x as f32 * TILE_SIZE,
                 y as f32 * TILE_SIZE,
             ))),
+            ..default()
+        },
+    ));
+}
+
+fn spawn_preview_block(commands: &mut Commands, texture_atlas: Handle<TextureAtlas>) {
+    commands.spawn((
+        PreviewBlock,
+        SpriteSheetBundle {
+            sprite: TextureAtlasSprite {
+                color: Color::rgba(1.0, 1.0, 1.0, 0.5),
+                ..default()
+            },
+            texture_atlas,
             ..default()
         },
     ));
