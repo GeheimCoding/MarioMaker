@@ -1,5 +1,7 @@
 use crate::components::{Animation, Camera, Direction, Gravity, Velocity};
+use crate::resources::MousePosition;
 use bevy::prelude::*;
+use bevy::window::PrimaryWindow;
 
 pub fn setup_camera(mut commands: Commands) {
     commands.spawn((
@@ -33,5 +35,23 @@ pub fn apply_gravity(time: Res<Time>, mut query: Query<(&mut Velocity, &Gravity)
     for (mut velocity, gravity) in query.iter_mut() {
         velocity.value.y = (velocity.value.y - gravity.0 * time.delta_seconds())
             .clamp(-velocity.max.y, velocity.value.y);
+    }
+}
+
+// https://bevy-cheatbook.github.io/cookbook/cursor2world.html
+pub fn update_mouse_position(
+    mut mouse_position: ResMut<MousePosition>,
+    window_query: Query<&Window, With<PrimaryWindow>>,
+    camera_query: Query<(&bevy::render::camera::Camera, &GlobalTransform), With<Camera>>,
+) {
+    let window = window_query.single();
+    let (camera, camera_transform) = camera_query.single();
+
+    if let Some(world_position) = window
+        .cursor_position()
+        .and_then(|cursor| camera.viewport_to_world(camera_transform, cursor))
+        .map(|ray| ray.origin.truncate())
+    {
+        mouse_position.0 = world_position;
     }
 }

@@ -1,9 +1,9 @@
-use crate::components::{Camera, Collider};
+use crate::components::Collider;
 use crate::content_manager::{TextureData, Textures};
+use crate::resources::MousePosition;
 use crate::world::components::{Block, PreviewBlock, TILE_SIZE};
 use crate::world::resources::Texture;
 use bevy::prelude::*;
-use bevy::window::PrimaryWindow;
 
 pub fn init(
     commands: Commands,
@@ -37,26 +37,16 @@ pub fn spawn(mut commands: Commands, textures: Res<Textures<Texture>>) {
 
 // https://bevy-cheatbook.github.io/cookbook/cursor2world.html
 pub fn move_preview_block(
-    window_query: Query<&Window, With<PrimaryWindow>>,
-    mut preview_block_query: Query<&mut Transform, With<PreviewBlock>>,
-    camera_query: Query<(&bevy::render::camera::Camera, &GlobalTransform), With<Camera>>,
+    mouse_position: Res<MousePosition>,
+    mut query: Query<&mut Transform, With<PreviewBlock>>,
 ) {
-    let window = window_query.single();
-    let mut transform = preview_block_query.single_mut();
-    let (camera, camera_transform) = camera_query.single();
-
-    if let Some(world_position) = window
-        .cursor_position()
-        .and_then(|cursor| camera.viewport_to_world(camera_transform, cursor))
-        .map(|ray| ray.origin.truncate())
-    {
-        let coords = (world_position + TILE_SIZE / 2.0) / TILE_SIZE;
-        transform.translation = Vec3::new(
-            coords.x.floor() * TILE_SIZE,
-            coords.y.floor() * TILE_SIZE,
-            0.0,
-        );
-    }
+    let mut transform = query.single_mut();
+    let coords = (mouse_position.0 + TILE_SIZE / 2.0) / TILE_SIZE;
+    transform.translation = Vec3::new(
+        coords.x.floor() * TILE_SIZE,
+        coords.y.floor() * TILE_SIZE,
+        0.0,
+    );
 }
 
 fn spawn_block(commands: &mut Commands, texture_atlas: Handle<TextureAtlas>, x: isize, y: isize) {
