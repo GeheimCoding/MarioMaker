@@ -2,7 +2,7 @@ use crate::components::Collider;
 use crate::content_manager::{TextureData, Textures};
 use crate::resources::MousePosition;
 use crate::world::components::{Block, PreviewBlock, TILE_SIZE};
-use crate::world::resources::Texture;
+use crate::world::resources::{Texture, Tiles};
 use bevy::prelude::*;
 
 pub fn init(
@@ -24,18 +24,17 @@ pub fn init(
     );
 }
 
-pub fn spawn(mut commands: Commands, textures: Res<Textures<Texture>>) {
+pub fn spawn(mut commands: Commands, mut tiles: ResMut<Tiles>, textures: Res<Textures<Texture>>) {
     let texture_handle = textures.get(&Texture::Block);
     for x in -2..4 {
-        spawn_block(&mut commands, texture_handle.clone(), x, -3);
+        spawn_block(&mut commands, &mut tiles, texture_handle.clone(), x, -3);
     }
-    spawn_block(&mut commands, texture_handle.clone(), 1, -2);
-    spawn_block(&mut commands, texture_handle.clone(), 2, -2);
-    spawn_block(&mut commands, texture_handle.clone(), 2, -1);
+    spawn_block(&mut commands, &mut tiles, texture_handle.clone(), 1, -2);
+    spawn_block(&mut commands, &mut tiles, texture_handle.clone(), 2, -2);
+    spawn_block(&mut commands, &mut tiles, texture_handle.clone(), 2, -1);
     spawn_preview_block(&mut commands, texture_handle.clone());
 }
 
-// https://bevy-cheatbook.github.io/cookbook/cursor2world.html
 pub fn move_preview_block(
     mouse_position: Res<MousePosition>,
     mut query: Query<&mut Transform, With<PreviewBlock>>,
@@ -49,7 +48,13 @@ pub fn move_preview_block(
     );
 }
 
-fn spawn_block(commands: &mut Commands, texture_atlas: Handle<TextureAtlas>, x: isize, y: isize) {
+fn spawn_block(
+    commands: &mut Commands,
+    tiles: &mut Tiles,
+    texture_atlas: Handle<TextureAtlas>,
+    x: isize,
+    y: isize,
+) {
     commands.spawn((
         Block,
         Collider::with_size(Vec2::splat(TILE_SIZE)),
@@ -62,6 +67,7 @@ fn spawn_block(commands: &mut Commands, texture_atlas: Handle<TextureAtlas>, x: 
             ..default()
         },
     ));
+    tiles.insert((x, y), Texture::Block);
 }
 
 fn spawn_preview_block(commands: &mut Commands, texture_atlas: Handle<TextureAtlas>) {
