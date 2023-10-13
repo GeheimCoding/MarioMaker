@@ -13,6 +13,6 @@ impl Plugin for WorldPlugin {
         app.init_resource::<Tiles>()
             .add_systems(PreStartup, init)
             .add_systems(Startup, spawn)
-            .add_systems(Update, move_preview_block);
+            .add_systems(Update, (move_preview_block, handle_block_placement));
     }
 }

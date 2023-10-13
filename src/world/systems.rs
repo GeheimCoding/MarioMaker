@@ -48,6 +48,31 @@ pub fn move_preview_block(
     );
 }
 
+pub fn handle_block_placement(
+    mut commands: Commands,
+    mut tiles: ResMut<Tiles>,
+    textures: Res<Textures<Texture>>,
+    mouse_position: Res<MousePosition>,
+    mouse_input: Res<Input<MouseButton>>,
+) {
+    let mouse_coords = (mouse_position.0 + TILE_SIZE / 2.0) / TILE_SIZE;
+    let coords = (
+        mouse_coords.x.floor() as isize,
+        mouse_coords.y.floor() as isize,
+    );
+    if mouse_input.pressed(MouseButton::Left) && !tiles.contains_key(&coords) {
+        spawn_block(
+            &mut commands,
+            &mut tiles,
+            textures.get(&Texture::Block),
+            coords.0,
+            coords.1,
+        )
+    } else if mouse_input.pressed(MouseButton::Right) && tiles.contains_key(&coords) {
+        commands.entity(tiles.remove(&coords).unwrap()).despawn();
+    }
+}
+
 fn spawn_block(
     commands: &mut Commands,
     tiles: &mut Tiles,
@@ -55,7 +80,7 @@ fn spawn_block(
     x: isize,
     y: isize,
 ) {
-    commands.spawn((
+    let entity = commands.spawn((
         Block,
         Collider::with_size(Vec2::splat(TILE_SIZE)),
         SpriteSheetBundle {
@@ -67,7 +92,7 @@ fn spawn_block(
             ..default()
         },
     ));
-    tiles.insert((x, y), Texture::Block);
+    tiles.insert((x, y), entity.id());
 }
 
 fn spawn_preview_block(commands: &mut Commands, texture_atlas: Handle<TextureAtlas>) {

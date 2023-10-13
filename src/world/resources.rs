@@ -10,4 +10,4 @@ pub enum Texture {
 impl TextureResource for Texture {}
 
 #[derive(Default, Deref, DerefMut, Resource)]
-pub struct Tiles(pub HashMap<(isize, isize), Texture>);
+pub struct Tiles(pub HashMap<(isize, isize), Entity>);
