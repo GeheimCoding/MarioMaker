@@ -11,3 +11,6 @@ pub struct CoyoteJump(pub Timer);
 
 #[derive(Component)]
 pub struct JumpBuffer(pub Timer);
+
+#[derive(Component)]
+pub struct JumpTimer(pub Timer);

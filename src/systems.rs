@@ -1,4 +1,5 @@
 use crate::components::{Animation, Camera, Direction, Gravity, Velocity};
+use crate::player::movement::components::JumpTimer;
 use crate::resources::MousePosition;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
@@ -31,10 +32,15 @@ pub fn animate(
     }
 }
 
-pub fn apply_gravity(time: Res<Time>, mut query: Query<(&mut Velocity, &Gravity)>) {
-    for (mut velocity, gravity) in query.iter_mut() {
-        velocity.value.y = (velocity.value.y - gravity.0 * time.delta_seconds())
-            .clamp(-velocity.max.y, velocity.value.y);
+pub fn apply_gravity(
+    time: Res<Time>,
+    mut query: Query<(&mut Velocity, &Gravity, Option<&JumpTimer>)>,
+) {
+    for (mut velocity, gravity, jump_timer) in query.iter_mut() {
+        if jump_timer.is_none() || jump_timer.unwrap().0.finished() {
+            velocity.value.y = (velocity.value.y - gravity.0 * time.delta_seconds())
+                .clamp(-velocity.max.y, velocity.value.y);
+        }
     }
 }
 

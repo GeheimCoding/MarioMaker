@@ -4,7 +4,7 @@ use crate::player::systems::*;
 use bevy::prelude::*;
 
 mod components;
-mod movement;
+pub mod movement;
 mod resources;
 mod systems;
 

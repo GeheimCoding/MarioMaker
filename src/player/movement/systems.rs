@@ -1,6 +1,8 @@
 use crate::components::{Collider, Direction, Velocity};
 use crate::player::components::Player;
-use crate::player::movement::components::{Acceleration, Airborne, CoyoteJump, JumpBuffer};
+use crate::player::movement::components::{
+    Acceleration, Airborne, CoyoteJump, JumpBuffer, JumpTimer,
+};
 use crate::world::components::Block;
 use bevy::prelude::*;
 
@@ -57,23 +59,35 @@ pub fn jump(
             &mut Velocity,
             Option<&Airborne>,
             Option<&mut JumpBuffer>,
+            Option<&mut JumpTimer>,
         ),
         With<Player>,
     >,
 ) {
-    let (entity, mut velocity, airborne, jump_buffer) = query.single_mut();
+    let (entity, mut velocity, airborne, jump_buffer, jump_timer) = query.single_mut();
     let mut jump = |commands: &mut Commands| {
+        velocity.value.y = 180.0;
         commands.entity(entity).insert(Airborne);
-        velocity.value.y = 250.0;
+        commands
+            .entity(entity)
+            .insert(JumpTimer(Timer::from_seconds(0.2, TimerMode::Once)));
     };
 
-    if keyboard_input.any_just_pressed(vec![KeyCode::Space, KeyCode::Up, KeyCode::W]) {
+    let inputs = vec![KeyCode::Space, KeyCode::Up, KeyCode::W];
+    if keyboard_input.any_just_pressed(inputs.clone()) {
         if airborne.is_some() {
             commands
                 .entity(entity)
                 .insert(JumpBuffer(Timer::from_seconds(0.05, TimerMode::Once)));
         } else {
             jump(&mut commands);
+        }
+    }
+    if let Some(mut jump_timer) = jump_timer {
+        if keyboard_input.any_pressed(inputs) {
+            jump_timer.0.tick(time.delta());
+        } else {
+            commands.entity(entity).remove::<JumpTimer>();
         }
     }
     if let Some(mut jump_buffer) = jump_buffer {
@@ -132,6 +146,8 @@ pub fn vertical_collision_response(
             );
             if player_rect.max.y > block_rect.max.y {
                 commands.entity(player).remove::<Airborne>();
+            } else {
+                commands.entity(player).remove::<JumpTimer>();
             }
         }
     }

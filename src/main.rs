@@ -7,7 +7,7 @@ use bevy::window::close_on_esc;
 
 mod components;
 mod content_manager;
-mod player;
+pub mod player;
 mod resources;
 mod systems;
 mod world;
