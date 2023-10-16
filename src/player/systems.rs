@@ -5,6 +5,7 @@ use crate::content_manager::{TextureData, Textures};
 use crate::player::components::{Player, State};
 use crate::player::movement::components::{Acceleration, Airborne, CoyoteJump};
 use crate::player::resources::{Animations, Texture};
+use crate::world::components::TILE_SIZE;
 use bevy::prelude::*;
 
 pub fn init(
@@ -102,4 +103,18 @@ pub fn handle_state_change(
             sprite.index = animation.frames[animation.frame_index]
         }
     }
+}
+
+pub fn move_camera(
+    player_query: Query<&Transform, (With<Player>, Without<Camera>)>,
+    mut camera_query: Query<&mut Transform, With<Camera>>,
+) {
+    let player_transform = player_query.single();
+    let mut camera_transform = camera_query.single_mut();
+    let right_edge = player_transform.translation.x + TILE_SIZE;
+
+    if camera_transform.translation.x < right_edge {
+        camera_transform.translation.x = right_edge;
+    }
+    camera_transform.translation.y = player_transform.translation.y.clamp(0.0, 100.0);
 }

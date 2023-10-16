@@ -156,11 +156,15 @@ pub fn vertical_collision_response(
 pub fn confine_in_window(
     mut commands: Commands,
     mut player_query: Query<(Entity, &Collider, &mut Transform, &mut Velocity), With<Player>>,
-    camera_query: Query<&OrthographicProjection, With<Camera>>,
+    camera_query: Query<(&OrthographicProjection, &Transform), (With<Camera>, Without<Player>)>,
 ) {
-    let (player, collider, mut transform, mut velocity) = player_query.single_mut();
-    let camera_rect = camera_query.single().area;
-    let player_rect = collider.get_rect(&transform);
+    let (player, collider, mut player_transform, mut velocity) = player_query.single_mut();
+    let (projection, camera_transform) = camera_query.single();
+    let camera_rect = Rect {
+        min: projection.area.min + camera_transform.translation.truncate(),
+        max: projection.area.max + camera_transform.translation.truncate(),
+    };
+    let player_rect = collider.get_rect(&player_transform);
     let position_response = collider.position_response(&camera_rect);
     let position_response = Rect {
         min: position_response.min + collider.size,
@@ -168,14 +172,14 @@ pub fn confine_in_window(
     };
 
     respond_to_horizontal_collision(
-        &mut transform,
+        &mut player_transform,
         &mut velocity,
         &player_rect,
         &camera_rect,
         &position_response,
     );
     respond_to_vertical_collision(
-        &mut transform,
+        &mut player_transform,
         &mut velocity,
         &player_rect,
         &camera_rect,
@@ -183,6 +187,8 @@ pub fn confine_in_window(
     );
     if player_rect.min.y < camera_rect.min.y {
         commands.entity(player).remove::<Airborne>();
+    } else if player_rect.max.y > camera_rect.max.y {
+        commands.entity(player).remove::<JumpTimer>();
     }
 }
 

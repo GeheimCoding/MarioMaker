@@ -39,6 +39,10 @@ pub fn move_preview_block(
     mouse_position: Res<MousePosition>,
     mut query: Query<&mut Transform, With<PreviewBlock>>,
 ) {
+    // this prevents the block from instantly moving to the center without any mouse movement
+    if mouse_position.0 == Vec2::ZERO {
+        return;
+    }
     let mut transform = query.single_mut();
     let coords = (mouse_position.0 + TILE_SIZE / 2.0) / TILE_SIZE;
     transform.translation = Vec3::new(
@@ -103,6 +107,7 @@ fn spawn_preview_block(commands: &mut Commands, texture_atlas: Handle<TextureAtl
                 color: Color::rgba(1.0, 1.0, 1.0, 0.5),
                 ..default()
             },
+            transform: Transform::from_translation(Vec3::new(0.0, -200.0, 0.0)),
             texture_atlas,
             ..default()
         },
