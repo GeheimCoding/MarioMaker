@@ -21,7 +21,7 @@ pub fn init(
             texture: Texture::Mario,
             path: "textures/mario.png".to_owned(),
             tile_size: Vec2::new(16.0, 24.0),
-            columns: 3,
+            columns: 6,
             rows: 1,
         }],
     );
@@ -69,7 +69,11 @@ pub fn handle_velocity_change(
     }
     let (mut state, velocity, airborne, coyote_jump) = query.single_mut();
     if airborne.is_some() {
-        *state = State::Airborne;
+        *state = if velocity.value.y > 0.0 {
+            State::Jumping
+        } else {
+            State::Falling
+        };
     } else if velocity.value.x.abs() > 0.0 {
         *state = State::Walking;
     } else {

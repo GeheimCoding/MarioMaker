@@ -19,7 +19,8 @@ impl Default for Animations {
         let animations = HashMap::from([
             (State::Idle, Animation::once(0)),
             (State::Walking, Animation::repeating(0.15, vec![0, 1], 1)),
-            (State::Airborne, Animation::once(2)),
+            (State::Jumping, Animation::once(2)),
+            (State::Falling, Animation::once(3)),
         ]);
         Self(animations)
     }
