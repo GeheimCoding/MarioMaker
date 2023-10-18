@@ -68,6 +68,14 @@ pub fn handle_velocity_change(
         return;
     }
     let (mut state, velocity, airborne, coyote_jump) = query.single_mut();
+    if velocity.value.y == 0.0 {
+        if let Some(mut coyote_jump) = coyote_jump {
+            coyote_jump.0.reset();
+        }
+    }
+    if *state == State::Grouching {
+        return;
+    }
     if airborne.is_some() {
         *state = if velocity.value.y > 0.0 {
             State::Jumping
@@ -78,11 +86,6 @@ pub fn handle_velocity_change(
         *state = State::Walking;
     } else {
         *state = State::Idle;
-    }
-    if velocity.value.y == 0.0 {
-        if let Some(mut coyote_jump) = coyote_jump {
-            coyote_jump.0.reset();
-        }
     }
 }
 

@@ -21,6 +21,7 @@ impl Default for Animations {
             (State::Walking, Animation::repeating(0.15, vec![0, 1], 1)),
             (State::Jumping, Animation::once(2)),
             (State::Falling, Animation::once(3)),
+            (State::Grouching, Animation::once(5)),
         ]);
         Self(animations)
     }
