@@ -54,7 +54,7 @@ impl Animation {
 #[derive(Component)]
 pub struct Gravity(pub f32);
 
-#[derive(Component)]
+#[derive(Clone, Copy, Component)]
 pub struct Collider {
     pub size: Vec2,
     pub offset: Vec2,

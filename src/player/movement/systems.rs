@@ -127,35 +127,16 @@ pub fn horizontal_collision_response(
 
 pub fn vertical_collision_response(
     mut commands: Commands,
-    mut player_query: Query<
-        (
-            Entity,
-            &mut Collider,
-            &mut State,
-            &mut Transform,
-            &mut Velocity,
-        ),
-        With<Player>,
-    >,
+    mut player_query: Query<(Entity, &Collider, &mut Transform, &mut Velocity), With<Player>>,
     block_query: Query<(&Collider, &Transform), (With<Block>, Without<Player>)>,
-    mut last_state: Local<State>,
 ) {
-    let (player, mut player_collider, mut state, mut player_transform, mut velocity) =
-        player_query.single_mut();
-    let was_crouching = *last_state == State::Grouching && *state != State::Grouching;
+    let (player, player_collider, mut player_transform, mut velocity) = player_query.single_mut();
 
     for (block_collider, block_transform) in block_query.iter() {
         let player_rect = player_collider.get_rect(&player_transform);
         let block_rect = block_collider.get_rect(block_transform);
 
         if is_colliding(&player_rect, &block_rect) {
-            // TODO: move this logic into crouch function to prevent crouching on collision with updated collider
-            let collision_on_top = player_rect.max.y < block_rect.max.y;
-            if was_crouching && collision_on_top {
-                *state = State::Grouching;
-                player_collider.size.y = 14.0;
-                player_collider.offset.y = -4.0;
-            }
             let position_response = player_collider.position_response(&block_rect);
             respond_to_vertical_collision(
                 &mut player_transform,
@@ -163,16 +144,14 @@ pub fn vertical_collision_response(
                 &player_rect,
                 &block_rect,
                 &position_response,
-                was_crouching,
             );
-            if collision_on_top {
-                commands.entity(player).remove::<JumpTimer>();
-            } else {
+            if player_rect.max.y > block_rect.max.y {
                 commands.entity(player).remove::<Airborne>();
+            } else {
+                commands.entity(player).remove::<JumpTimer>();
             }
         }
     }
-    *last_state = *state;
 }
 
 pub fn confine_in_window(
@@ -206,7 +185,6 @@ pub fn confine_in_window(
         &player_rect,
         &camera_rect,
         &position_response,
-        false,
     );
     if player_rect.min.y < camera_rect.min.y {
         commands.entity(player).remove::<Airborne>();
@@ -240,19 +218,35 @@ pub fn reset_coyote_jump(mut commands: Commands, mut removed: RemovedComponents<
 
 pub fn crouch(
     keyboard_input: Res<Input<KeyCode>>,
-    mut query: Query<(&mut Collider, &mut State), With<Player>>,
+    mut player_query: Query<(&mut Collider, &mut State, &Transform), With<Player>>,
+    block_query: Query<(&Collider, &Transform), (With<Block>, Without<Player>)>,
 ) {
-    let (mut collider, mut state) = query.single_mut();
+    let (mut player_collider, mut state, player_transform) = player_query.single_mut();
     let down_pressed = keyboard_input.any_pressed(vec![S, Down]);
 
     if *state != State::Grouching && down_pressed {
         *state = State::Grouching;
-        collider.size.y = 14.0;
-        collider.offset.y = -4.0;
+        player_collider.size.y = 14.0;
+        player_collider.offset.y = -4.0;
     } else if *state == State::Grouching && !down_pressed {
-        *state = State::Idle;
-        collider.size.y = 20.0;
-        collider.offset.y = -1.0;
+        let mut colliding = false;
+        let mut updated_player_collider = *player_collider;
+        updated_player_collider.size.y = 20.0;
+        updated_player_collider.offset.y = -1.0;
+
+        for (block_collider, block_transform) in block_query.iter() {
+            let player_rect = updated_player_collider.get_rect(&player_transform);
+            let block_rect = block_collider.get_rect(block_transform);
+
+            if is_colliding(&player_rect, &block_rect) {
+                colliding = true;
+                break;
+            }
+        }
+        if !colliding {
+            *state = State::Idle;
+            *player_collider = updated_player_collider;
+        }
     }
 }
 
@@ -303,9 +297,8 @@ fn respond_to_vertical_collision(
     rect: &Rect,
     other: &Rect,
     position_response: &Rect,
-    was_crouching: bool,
 ) {
-    if rect.min.y < other.min.y && !was_crouching {
+    if rect.min.y < other.min.y {
         velocity.value.y = 0.0;
         transform.translation.y = position_response.min.y;
     } else if rect.max.y > other.max.y {
