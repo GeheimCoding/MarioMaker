@@ -1,7 +1,9 @@
+use crate::player::movement::events::Grounded;
 use crate::player::movement::systems::*;
 use bevy::prelude::*;
 
 pub mod components;
+mod events;
 mod systems;
 
 pub struct MovementPlugin;
@@ -15,25 +17,26 @@ pub enum UpdateSet {
 
 impl Plugin for MovementPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            Update,
-            (
-                horizontal_movement,
-                horizontal_collision_response,
-                jump,
-                crouch,
-                vertical_movement,
-                vertical_collision_response,
+        app.add_event::<Grounded>()
+            .add_systems(
+                Update,
+                (
+                    horizontal_movement,
+                    horizontal_collision_response,
+                    jump,
+                    crouch,
+                    vertical_movement,
+                    vertical_collision_response,
+                )
+                    .chain()
+                    .in_set(UpdateSet::Movement),
             )
-                .chain()
-                .in_set(UpdateSet::Movement),
-        )
-        .add_systems(Update, confine_in_window.in_set(UpdateSet::Confinement))
-        .add_systems(Update, (coyote_jump, reset_coyote_jump))
-        .configure_set(Update, UpdateSet::Movement.before(UpdateSet::Confinement))
-        .configure_set(
-            Update,
-            UpdateSet::Confinement.before(UpdateSet::ChangeDetection),
-        );
+            .add_systems(Update, confine_in_window.in_set(UpdateSet::Confinement))
+            .add_systems(Update, (coyote_jump, reset_coyote_jump))
+            .configure_set(Update, UpdateSet::Movement.before(UpdateSet::Confinement))
+            .configure_set(
+                Update,
+                UpdateSet::Confinement.before(UpdateSet::ChangeDetection),
+            );
     }
 }
