@@ -84,7 +84,7 @@ pub fn handle_velocity_change(
         };
     } else if velocity.value.x.abs() > 0.0 {
         *state = State::Walking;
-    } else {
+    } else if *state != State::Gazing {
         *state = State::Idle;
     }
 }

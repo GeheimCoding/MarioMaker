@@ -84,8 +84,7 @@ pub fn jump(
             .insert(JumpTimer(Timer::from_seconds(0.2, TimerMode::Once)));
     };
 
-    let inputs = vec![KeyCode::Space, KeyCode::Up, KeyCode::W];
-    if keyboard_input.any_just_pressed(inputs.clone()) {
+    if keyboard_input.just_pressed(KeyCode::Space) {
         if airborne.is_some() {
             commands
                 .entity(entity)
@@ -95,7 +94,7 @@ pub fn jump(
         }
     }
     if let Some(mut jump_timer) = jump_timer {
-        if keyboard_input.any_pressed(inputs) {
+        if keyboard_input.pressed(KeyCode::Space) {
             jump_timer.0.tick(time.delta());
         } else {
             commands.entity(entity).remove::<JumpTimer>();
@@ -264,6 +263,23 @@ pub fn crouch(
         if !colliding {
             *state = State::Idle;
             *player_collider = updated_player_collider;
+        }
+    }
+}
+
+pub fn gaze(
+    keyboard_input: Res<Input<KeyCode>>,
+    mut grounded_event: EventReader<Grounded>,
+    mut query: Query<(&mut State, &Velocity), With<Player>>,
+) {
+    let (mut state, velocity) = query.single_mut();
+    let grounded = grounded_event.iter().any(|event| event.0);
+
+    if velocity.value.x == 0.0 && grounded {
+        if keyboard_input.any_pressed(vec![KeyCode::W, KeyCode::Up]) {
+            *state = State::Gazing;
+        } else {
+            *state = State::Idle;
         }
     }
 }

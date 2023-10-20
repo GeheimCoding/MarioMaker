@@ -24,6 +24,7 @@ impl Plugin for MovementPlugin {
                     horizontal_movement,
                     horizontal_collision_response,
                     jump,
+                    gaze,
                     crouch,
                     vertical_movement,
                     vertical_collision_response,

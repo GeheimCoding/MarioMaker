@@ -10,5 +10,6 @@ pub enum State {
     Walking,
     Jumping,
     Falling,
+    Gazing,
     Grouching,
 }
