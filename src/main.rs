@@ -1,3 +1,4 @@
+use crate::enemies::EnemyPlugin;
 use crate::player::PlayerPlugin;
 use crate::resources::MousePosition;
 use crate::systems::*;
@@ -7,6 +8,7 @@ use bevy::window::close_on_esc;
 
 mod components;
 mod content_manager;
+mod enemies;
 pub mod player;
 mod resources;
 mod systems;
@@ -32,6 +34,7 @@ fn main() {
                 .set(ImagePlugin::default_nearest()),
             PlayerPlugin,
             WorldPlugin,
+            EnemyPlugin,
         ))
         .add_systems(Startup, setup_camera)
         .add_systems(
