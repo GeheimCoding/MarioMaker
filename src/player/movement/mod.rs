@@ -4,7 +4,7 @@ use bevy::prelude::*;
 
 pub mod components;
 mod events;
-mod systems;
+pub mod systems;
 
 pub struct MovementPlugin;
 
@@ -40,6 +40,7 @@ impl Plugin for MovementPlugin {
             .add_systems(Update, (coyote_jump, reset_coyote_jump))
             .configure_set(Update, HorizontalMovement.before(HorizontalConfinement))
             .configure_set(Update, VerticalMovement.before(VerticalConfinement))
+            .configure_set(Update, HorizontalConfinement.before(VerticalMovement))
             .configure_set(Update, HorizontalConfinement.before(ChangeDetection))
             .configure_set(Update, VerticalConfinement.before(ChangeDetection));
     }

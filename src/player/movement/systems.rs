@@ -305,7 +305,7 @@ fn apply_friction(velocity: f32, friction: f32) -> f32 {
     }
 }
 
-fn is_colliding(lhs: &Rect, rhs: &Rect) -> bool {
+pub fn is_colliding(lhs: &Rect, rhs: &Rect) -> bool {
     lhs.max.x > rhs.min.x && lhs.min.x < rhs.max.x && lhs.max.y > rhs.min.y && lhs.min.y < rhs.max.y
 }
 
@@ -325,7 +325,7 @@ fn respond_to_horizontal_collision(
     }
 }
 
-fn respond_to_vertical_collision(
+pub fn respond_to_vertical_collision(
     transform: &mut Transform,
     velocity: &mut Velocity,
     rect: &Rect,

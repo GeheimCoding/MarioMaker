@@ -19,10 +19,10 @@ impl Default for Animations {
         let animations = HashMap::from([
             (State::IdleAlive, Animation::once(1)),
             (State::IdleDead, Animation::once(2)),
-            (State::Walking, Animation::repeating(0.15, vec![0, 1], 0)),
+            (State::Walking, Animation::repeating(0.2, vec![0, 1], 0)),
             (
                 State::Rolling,
-                Animation::repeating(0.15, vec![2, 3, 4, 5], 3),
+                Animation::repeating(0.2, vec![2, 3, 4, 5], 3),
             ),
         ]);
         Self(animations)

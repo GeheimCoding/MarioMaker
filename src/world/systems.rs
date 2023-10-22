@@ -26,12 +26,11 @@ pub fn init(
 
 pub fn spawn(mut commands: Commands, mut tiles: ResMut<Tiles>, textures: Res<Textures<Texture>>) {
     let texture_handle = textures.get(&Texture::Block);
-    for x in -2..4 {
+    for x in -10..20 {
         spawn_block(&mut commands, &mut tiles, texture_handle.clone(), x, -3);
     }
-    spawn_block(&mut commands, &mut tiles, texture_handle.clone(), 1, -2);
-    spawn_block(&mut commands, &mut tiles, texture_handle.clone(), 2, -2);
-    spawn_block(&mut commands, &mut tiles, texture_handle.clone(), 2, -1);
+    spawn_block(&mut commands, &mut tiles, texture_handle.clone(), 10, -2);
+    spawn_block(&mut commands, &mut tiles, texture_handle.clone(), -8, -2);
     spawn_preview_block(&mut commands, texture_handle.clone());
 }
 
