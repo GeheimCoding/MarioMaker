@@ -278,7 +278,7 @@ pub fn gaze(
     if velocity.value.x == 0.0 && grounded {
         if keyboard_input.any_pressed(vec![KeyCode::W, KeyCode::Up]) {
             *state = State::Gazing;
-        } else {
+        } else if *state == State::Gazing {
             *state = State::Idle;
         }
     }
