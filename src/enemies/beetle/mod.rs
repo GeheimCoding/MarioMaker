@@ -10,8 +10,7 @@ pub struct BeetlePlugin;
 
 impl Plugin for BeetlePlugin {
     fn build(&self, app: &mut App) {
-        use crate::player::movement::UpdateSet::*;
-
+        use crate::system_sets::UpdateSet::*;
         app.init_resource::<Animations>()
             .add_systems(PreStartup, init)
             .add_systems(Startup, spawn)

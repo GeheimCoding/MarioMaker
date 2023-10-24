@@ -1,6 +1,7 @@
 use crate::enemies::EnemyPlugin;
 use crate::player::PlayerPlugin;
 use crate::resources::MousePosition;
+use crate::system_sets::SystemSetPlugin;
 use crate::systems::*;
 use crate::world::WorldPlugin;
 use bevy::prelude::*;
@@ -11,6 +12,7 @@ mod content_manager;
 mod enemies;
 pub mod player;
 mod resources;
+mod system_sets;
 mod systems;
 mod world;
 
@@ -35,6 +37,7 @@ fn main() {
             PlayerPlugin,
             WorldPlugin,
             EnemyPlugin,
+            SystemSetPlugin,
         ))
         .add_systems(Startup, setup_camera)
         .add_systems(
