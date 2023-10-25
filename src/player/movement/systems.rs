@@ -1,9 +1,9 @@
 use crate::components::{Collider, Direction, Velocity};
+use crate::events::Grounded;
 use crate::player::components::{Player, State};
 use crate::player::movement::components::{
     Acceleration, Airborne, CoyoteJump, JumpBuffer, JumpTimer,
 };
-use crate::player::movement::events::Grounded;
 use crate::world::components::Block;
 use bevy::prelude::KeyCode::{Down, S};
 use bevy::prelude::*;
@@ -14,6 +14,7 @@ pub fn horizontal_movement(
     mut grounded_event: EventReader<Grounded>,
     mut query: Query<
         (
+            Entity,
             &mut Transform,
             &mut Direction,
             &mut Velocity,
@@ -23,9 +24,9 @@ pub fn horizontal_movement(
         With<Player>,
     >,
 ) {
-    let (mut transform, mut player_direction, mut player_velocity, acceleration, state) =
+    let (player, mut transform, mut player_direction, mut player_velocity, acceleration, state) =
         query.single_mut();
-    let grounded = grounded_event.iter().any(|event| event.0);
+    let grounded = grounded_event.iter().any(|event| event.0 == player);
     let crouching = *state == State::Grouching;
     let direction = get_horizontal_direction(keyboard_input);
     let is_moving = direction != 0.0 && !(crouching && grounded);
@@ -141,7 +142,6 @@ pub fn vertical_collision_response(
     block_query: Query<(&Collider, &Transform), (With<Block>, Without<Player>)>,
 ) {
     let (player, player_collider, mut player_transform, mut velocity) = player_query.single_mut();
-    let mut grounded = false;
 
     for (block_collider, block_transform) in block_query.iter() {
         let player_rect = player_collider.get_rect(&player_transform);
@@ -157,14 +157,13 @@ pub fn vertical_collision_response(
                 &position_response,
             );
             if player_rect.max.y > block_rect.max.y {
-                grounded = true;
                 commands.entity(player).remove::<Airborne>();
+                grounded_event.send(Grounded(player));
             } else {
                 commands.entity(player).remove::<JumpTimer>();
             }
         }
     }
-    grounded_event.send(Grounded(grounded));
 }
 
 pub fn confine_in_window(
@@ -185,7 +184,6 @@ pub fn confine_in_window(
         min: position_response.min + collider.size,
         max: position_response.max - collider.size,
     };
-    let mut grounded = false;
 
     respond_to_horizontal_collision(
         &mut player_transform,
@@ -202,12 +200,11 @@ pub fn confine_in_window(
         &position_response,
     );
     if player_rect.min.y < camera_rect.min.y {
-        grounded = true;
         commands.entity(player).remove::<Airborne>();
+        grounded_event.send(Grounded(player));
     } else if player_rect.max.y > camera_rect.max.y {
         commands.entity(player).remove::<JumpTimer>();
     }
-    grounded_event.send(Grounded(grounded));
 }
 
 pub fn coyote_jump(
@@ -270,10 +267,10 @@ pub fn crouch(
 pub fn gaze(
     keyboard_input: Res<Input<KeyCode>>,
     mut grounded_event: EventReader<Grounded>,
-    mut query: Query<(&mut State, &Velocity), With<Player>>,
+    mut query: Query<(Entity, &mut State, &Velocity), With<Player>>,
 ) {
-    let (mut state, velocity) = query.single_mut();
-    let grounded = grounded_event.iter().any(|event| event.0);
+    let (player, mut state, velocity) = query.single_mut();
+    let grounded = grounded_event.iter().any(|event| event.0 == player);
 
     if velocity.value.x == 0.0 && grounded {
         if keyboard_input.any_pressed(vec![KeyCode::W, KeyCode::Up]) {

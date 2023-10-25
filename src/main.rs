@@ -1,4 +1,5 @@
 use crate::enemies::EnemyPlugin;
+use crate::events::Grounded;
 use crate::player::PlayerPlugin;
 use crate::resources::MousePosition;
 use crate::system_sets::SystemSetPlugin;
@@ -10,6 +11,7 @@ use bevy::window::close_on_esc;
 mod components;
 mod content_manager;
 mod enemies;
+mod events;
 pub mod player;
 mod resources;
 mod system_sets;
@@ -20,6 +22,7 @@ fn main() {
     App::new()
         .init_resource::<MousePosition>()
         .insert_resource(ClearColor(Color::CYAN))
+        .add_event::<Grounded>()
         .add_plugins((
             DefaultPlugins
                 .set(WindowPlugin {

@@ -1,9 +1,7 @@
-use crate::player::movement::events::Grounded;
 use crate::player::movement::systems::*;
 use bevy::prelude::*;
 
 pub mod components;
-mod events;
 pub mod systems;
 
 pub struct MovementPlugin;
@@ -11,8 +9,7 @@ pub struct MovementPlugin;
 impl Plugin for MovementPlugin {
     fn build(&self, app: &mut App) {
         use crate::system_sets::UpdateSet::*;
-        app.add_event::<Grounded>()
-            .add_systems(Update, horizontal_movement.in_set(HorizontalMovement))
+        app.add_systems(Update, horizontal_movement.in_set(HorizontalMovement))
             .add_systems(
                 Update,
                 horizontal_collision_response.in_set(HorizontalConfinement),
