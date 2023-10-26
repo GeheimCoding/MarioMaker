@@ -1,6 +1,5 @@
-use crate::enemies::EnemyPlugin;
+use crate::character::CharacterPlugin;
 use crate::events::Grounded;
-use crate::player::PlayerPlugin;
 use crate::resources::MousePosition;
 use crate::system_sets::SystemSetPlugin;
 use crate::systems::*;
@@ -8,11 +7,10 @@ use crate::world::WorldPlugin;
 use bevy::prelude::*;
 use bevy::window::close_on_esc;
 
+mod character;
 mod components;
 mod content_manager;
-mod enemies;
 mod events;
-pub mod player;
 mod resources;
 mod system_sets;
 mod systems;
@@ -37,9 +35,8 @@ fn main() {
                     ..default()
                 })
                 .set(ImagePlugin::default_nearest()),
-            PlayerPlugin,
             WorldPlugin,
-            EnemyPlugin,
+            CharacterPlugin,
             SystemSetPlugin,
         ))
         .add_systems(Startup, setup_camera)

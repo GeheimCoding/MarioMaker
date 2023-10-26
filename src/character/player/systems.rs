@@ -1,10 +1,10 @@
+use crate::character::player::components::{Player, State};
+use crate::character::player::movement::components::{Acceleration, Airborne, CoyoteJump};
+use crate::character::player::resources::{Animations, Texture};
 use crate::components::{
     Animation, Collider, Direction, Gravity, Velocity, MIN_ANIMATION_DURATION,
 };
 use crate::content_manager::{TextureData, Textures};
-use crate::player::components::{Player, State};
-use crate::player::movement::components::{Acceleration, Airborne, CoyoteJump};
-use crate::player::resources::{Animations, Texture};
 use crate::world::components::TILE_SIZE;
 use bevy::prelude::*;
 

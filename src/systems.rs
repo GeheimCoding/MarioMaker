@@ -1,5 +1,5 @@
+use crate::character::player::movement::components::JumpTimer;
 use crate::components::{Animation, Camera, Direction, Gravity, Velocity};
-use crate::player::movement::components::JumpTimer;
 use crate::resources::MousePosition;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;

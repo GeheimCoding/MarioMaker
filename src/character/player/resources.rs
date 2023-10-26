@@ -1,12 +1,12 @@
+use crate::character::player::components::State;
 use crate::components::Animation;
 use crate::content_manager::TextureResource;
-use crate::enemies::beetle::components::State;
 use bevy::prelude::*;
 use bevy::utils::HashMap;
 
 #[derive(Debug, Eq, Hash, PartialEq)]
 pub enum Texture {
-    Beetle,
+    Mario,
 }
 
 impl TextureResource for Texture {}
@@ -17,13 +17,12 @@ pub struct Animations(HashMap<State, Animation>);
 impl Default for Animations {
     fn default() -> Self {
         let animations = HashMap::from([
-            (State::IdleAlive, Animation::once(1)),
-            (State::IdleDead, Animation::once(2)),
-            (State::Walking, Animation::repeating(0.2, vec![0, 1], 0)),
-            (
-                State::Rolling,
-                Animation::repeating(0.2, vec![2, 3, 4, 5], 3),
-            ),
+            (State::Idle, Animation::once(0)),
+            (State::Walking, Animation::repeating(0.15, vec![0, 1], 1)),
+            (State::Jumping, Animation::once(2)),
+            (State::Falling, Animation::once(3)),
+            (State::Gazing, Animation::once(4)),
+            (State::Grouching, Animation::once(5)),
         ]);
         Self(animations)
     }

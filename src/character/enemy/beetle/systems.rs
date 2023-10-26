@@ -1,10 +1,10 @@
-use crate::components::{Collider, Direction, Gravity, Velocity};
-use crate::content_manager::{TextureData, Textures};
-use crate::enemies::beetle::components::{Beetle, State};
-use crate::enemies::beetle::resources::{Animations, Texture};
-use crate::player::movement::systems::{
+use crate::character::enemy::beetle::components::{Beetle, State};
+use crate::character::enemy::beetle::resources::{Animations, Texture};
+use crate::character::player::movement::systems::{
     is_colliding, respond_to_horizontal_collision, respond_to_vertical_collision,
 };
+use crate::components::{Collider, Direction, Gravity, Velocity};
+use crate::content_manager::{TextureData, Textures};
 use crate::world::components::Block;
 use bevy::prelude::*;
 

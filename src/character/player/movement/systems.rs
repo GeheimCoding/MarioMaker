@@ -1,9 +1,9 @@
-use crate::components::{Collider, Direction, Velocity};
-use crate::events::Grounded;
-use crate::player::components::{Player, State};
-use crate::player::movement::components::{
+use crate::character::player::components::{Player, State};
+use crate::character::player::movement::components::{
     Acceleration, Airborne, CoyoteJump, JumpBuffer, JumpTimer,
 };
+use crate::components::{Collider, Direction, Velocity};
+use crate::events::Grounded;
 use crate::world::components::Block;
 use bevy::prelude::KeyCode::{Down, S};
 use bevy::prelude::*;
