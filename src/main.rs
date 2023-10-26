@@ -1,4 +1,4 @@
-use crate::character::CharacterPlugin;
+use crate::characters::CharacterPlugin;
 use crate::events::Grounded;
 use crate::resources::MousePosition;
 use crate::system_sets::SystemSetPlugin;
@@ -7,7 +7,7 @@ use crate::world::WorldPlugin;
 use bevy::prelude::*;
 use bevy::window::close_on_esc;
 
-mod character;
+mod characters;
 mod components;
 mod content_manager;
 mod events;

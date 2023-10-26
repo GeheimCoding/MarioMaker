@@ -1,6 +1,6 @@
-use crate::character::player::movement::MovementPlugin;
-use crate::character::player::resources::Animations;
-use crate::character::player::systems::*;
+use crate::characters::player::movement::MovementPlugin;
+use crate::characters::player::resources::Animations;
+use crate::characters::player::systems::*;
 use crate::system_sets::UpdateSet;
 use bevy::prelude::*;
 

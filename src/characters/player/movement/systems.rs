@@ -1,5 +1,5 @@
-use crate::character::player::components::{Player, State};
-use crate::character::player::movement::components::{
+use crate::characters::player::components::{Player, State};
+use crate::characters::player::movement::components::{
     Acceleration, Airborne, CoyoteJump, JumpBuffer, JumpTimer,
 };
 use crate::components::{Collider, Direction, Velocity};
@@ -51,14 +51,6 @@ pub fn run(
         apply_friction(*velocity, acceleration * 1.2)
     };
     transform.translation.x += *velocity * time.delta_seconds();
-}
-
-pub fn vertical_movement(
-    time: Res<Time>,
-    mut query: Query<(&mut Transform, &Velocity), With<Player>>,
-) {
-    let (mut transform, velocity) = query.single_mut();
-    transform.translation.y += velocity.value.y * time.delta_seconds();
 }
 
 pub fn jump(

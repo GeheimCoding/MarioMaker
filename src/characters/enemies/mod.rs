@@ -1,4 +1,4 @@
-use crate::character::enemy::beetle::BeetlePlugin;
+use crate::characters::enemies::beetle::BeetlePlugin;
 use bevy::prelude::*;
 
 mod beetle;

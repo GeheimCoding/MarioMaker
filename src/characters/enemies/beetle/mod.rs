@@ -1,5 +1,5 @@
-use crate::character::enemy::beetle::resources::Animations;
-use crate::character::enemy::beetle::systems::*;
+use crate::characters::enemies::beetle::resources::Animations;
+use crate::characters::enemies::beetle::systems::*;
 use bevy::prelude::*;
 
 mod components;

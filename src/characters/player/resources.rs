@@ -1,4 +1,4 @@
-use crate::character::player::components::State;
+use crate::characters::player::components::State;
 use crate::components::Animation;
 use crate::content_manager::TextureResource;
 use bevy::prelude::*;

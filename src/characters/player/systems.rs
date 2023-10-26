@@ -1,6 +1,7 @@
-use crate::character::player::components::{Player, State};
-use crate::character::player::movement::components::{Acceleration, Airborne, CoyoteJump};
-use crate::character::player::resources::{Animations, Texture};
+use crate::characters::components::Character;
+use crate::characters::player::components::{Player, State};
+use crate::characters::player::movement::components::{Acceleration, Airborne, CoyoteJump};
+use crate::characters::player::resources::{Animations, Texture};
 use crate::components::{
     Animation, Collider, Direction, Gravity, Velocity, MIN_ANIMATION_DURATION,
 };
@@ -34,6 +35,7 @@ pub fn spawn(
 ) {
     commands.spawn((
         Player,
+        Character,
         Collider {
             size: Vec2::new(14.0, 20.0),
             offset: Vec2::new(0.0, -1.0),

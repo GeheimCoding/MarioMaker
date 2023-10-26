@@ -1,4 +1,4 @@
-use crate::character::player::movement::systems::*;
+use crate::characters::player::movement::systems::*;
 use bevy::prelude::*;
 
 pub mod components;
@@ -18,7 +18,6 @@ impl Plugin for MovementPlugin {
                 Update,
                 (jump, gaze, crouch).chain().in_set(VerticalMovementActions),
             )
-            .add_systems(Update, vertical_movement.in_set(VerticalMovement))
             .add_systems(
                 Update,
                 (vertical_collision_response, confine_in_window).in_set(VerticalConfinement),
