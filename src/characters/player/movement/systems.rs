@@ -12,19 +12,9 @@ pub fn run(
     time: Res<Time>,
     keyboard_input: Res<Input<KeyCode>>,
     mut grounded_event: EventReader<Grounded>,
-    mut query: Query<
-        (
-            Entity,
-            &mut Transform,
-            &mut Direction,
-            &mut Velocity,
-            &Acceleration,
-            &State,
-        ),
-        With<Player>,
-    >,
+    mut query: Query<(Entity, &mut Direction, &mut Velocity, &Acceleration, &State), With<Player>>,
 ) {
-    let (player, mut transform, mut player_direction, mut player_velocity, acceleration, state) =
+    let (player, mut player_direction, mut player_velocity, acceleration, state) =
         query.single_mut();
     let grounded = grounded_event.iter().any(|event| event.0 == player);
     let crouching = *state == State::Grouching;
@@ -50,7 +40,6 @@ pub fn run(
     } else {
         apply_friction(*velocity, acceleration * 1.2)
     };
-    transform.translation.x += *velocity * time.delta_seconds();
 }
 
 pub fn jump(
