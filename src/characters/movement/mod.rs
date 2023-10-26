@@ -1,7 +1,6 @@
-pub mod systems;
-
 use crate::characters::movement::systems::*;
 use bevy::prelude::*;
+mod systems;
 
 pub struct MovementPlugin;
 

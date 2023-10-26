@@ -1,4 +1,4 @@
-use crate::characters::components::Character;
+use crate::characters::components::{Character, CollisionResponse};
 use crate::characters::player::components::{Player, State};
 use crate::characters::player::movement::components::{Acceleration, Airborne, CoyoteJump};
 use crate::characters::player::resources::{Animations, Texture};
@@ -36,6 +36,9 @@ pub fn spawn(
     commands.spawn((
         Player,
         Character,
+        CollisionResponse {
+            velocity: Vec2::ZERO,
+        },
         Collider {
             size: Vec2::new(14.0, 20.0),
             offset: Vec2::new(0.0, -1.0),

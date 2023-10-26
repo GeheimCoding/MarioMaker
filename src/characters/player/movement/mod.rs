@@ -2,7 +2,7 @@ use crate::characters::player::movement::systems::*;
 use bevy::prelude::*;
 
 pub mod components;
-pub mod systems;
+mod systems;
 
 pub struct MovementPlugin;
 

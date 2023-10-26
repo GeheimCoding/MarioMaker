@@ -5,10 +5,10 @@ use bevy::prelude::*;
 
 mod components;
 mod enemies;
-pub mod movement;
+mod movement;
 pub mod player;
 
-pub mod systems;
+mod systems;
 
 pub struct CharacterPlugin;
 

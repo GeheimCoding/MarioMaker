@@ -1,4 +1,4 @@
-use crate::characters::components::Character;
+use crate::characters::components::{Character, CollisionResponse};
 use crate::characters::player::movement::components::{Airborne, JumpTimer};
 use crate::characters::systems::is_colliding;
 use crate::components::{Collider, Velocity};
@@ -16,10 +16,15 @@ pub fn horizontal_movement(
 }
 
 pub fn horizontal_collision_response(
-    mut character_query: Query<(&Collider, &mut Transform, &mut Velocity), With<Character>>,
+    mut character_query: Query<
+        (&Collider, &CollisionResponse, &mut Transform, &mut Velocity),
+        With<Character>,
+    >,
     block_query: Query<(&Collider, &Transform), (With<Block>, Without<Character>)>,
 ) {
-    for (character_collider, mut character_transform, mut velocity) in character_query.iter_mut() {
+    for (character_collider, collision_response, mut character_transform, mut velocity) in
+        character_query.iter_mut()
+    {
         for (block_collider, block_transform) in block_query.iter() {
             let character_rect = character_collider.get_rect(&character_transform);
             let block_rect = block_collider.get_rect(block_transform);
@@ -32,6 +37,7 @@ pub fn horizontal_collision_response(
                     &character_rect,
                     &block_rect,
                     &position_response,
+                    collision_response,
                 );
             }
         }
@@ -50,11 +56,25 @@ pub fn vertical_movement(
 pub fn vertical_collision_response(
     mut commands: Commands,
     mut grounded_event: EventWriter<Grounded>,
-    mut character_query: Query<(Entity, &Collider, &mut Transform, &mut Velocity), With<Character>>,
+    mut character_query: Query<
+        (
+            Entity,
+            &Collider,
+            &CollisionResponse,
+            &mut Transform,
+            &mut Velocity,
+        ),
+        With<Character>,
+    >,
     block_query: Query<(&Collider, &Transform), (With<Block>, Without<Character>)>,
 ) {
-    for (character, character_collider, mut character_transform, mut velocity) in
-        character_query.iter_mut()
+    for (
+        character,
+        character_collider,
+        collision_response,
+        mut character_transform,
+        mut velocity,
+    ) in character_query.iter_mut()
     {
         for (block_collider, block_transform) in block_query.iter() {
             let character_rect = character_collider.get_rect(&character_transform);
@@ -68,6 +88,7 @@ pub fn vertical_collision_response(
                     &character_rect,
                     &block_rect,
                     &position_response,
+                    collision_response,
                 );
                 if character_rect.max.y > block_rect.max.y {
                     commands.entity(character).remove::<Airborne>();
@@ -83,10 +104,21 @@ pub fn vertical_collision_response(
 pub fn confine_in_window(
     mut commands: Commands,
     mut grounded_event: EventWriter<Grounded>,
-    mut character_query: Query<(Entity, &Collider, &mut Transform, &mut Velocity), With<Character>>,
+    mut character_query: Query<
+        (
+            Entity,
+            &Collider,
+            &CollisionResponse,
+            &mut Transform,
+            &mut Velocity,
+        ),
+        With<Character>,
+    >,
     camera_query: Query<(&OrthographicProjection, &Transform), (With<Camera>, Without<Character>)>,
 ) {
-    for (character, collider, mut character_transform, mut velocity) in character_query.iter_mut() {
+    for (character, collider, collision_response, mut character_transform, mut velocity) in
+        character_query.iter_mut()
+    {
         let (projection, camera_transform) = camera_query.single();
         let camera_rect = Rect {
             min: projection.area.min + camera_transform.translation.truncate(),
@@ -98,6 +130,9 @@ pub fn confine_in_window(
             min: position_response.min + collider.size,
             max: position_response.max - collider.size,
         };
+        let collision_response = CollisionResponse {
+            velocity: collision_response.velocity * -1.0,
+        };
 
         respond_to_horizontal_collision(
             &mut character_transform,
@@ -105,6 +140,7 @@ pub fn confine_in_window(
             &character_rect,
             &camera_rect,
             &position_response,
+            &collision_response,
         );
         respond_to_vertical_collision(
             &mut character_transform,
@@ -112,6 +148,7 @@ pub fn confine_in_window(
             &character_rect,
             &camera_rect,
             &position_response,
+            &collision_response,
         );
         if character_rect.min.y < camera_rect.min.y {
             commands.entity(character).remove::<Airborne>();
@@ -122,34 +159,36 @@ pub fn confine_in_window(
     }
 }
 
-pub fn respond_to_horizontal_collision(
+fn respond_to_horizontal_collision(
     transform: &mut Transform,
     velocity: &mut Velocity,
     rect: &Rect,
     other: &Rect,
     position_response: &Rect,
+    collision_response: &CollisionResponse,
 ) {
     if rect.min.x < other.min.x {
-        velocity.value.x = 0.0;
+        velocity.value.x = -collision_response.velocity.x;
         transform.translation.x = position_response.min.x;
     } else if rect.max.x > other.max.x {
-        velocity.value.x = 0.0;
+        velocity.value.x = collision_response.velocity.x;
         transform.translation.x = position_response.max.x;
     }
 }
 
-pub fn respond_to_vertical_collision(
+fn respond_to_vertical_collision(
     transform: &mut Transform,
     velocity: &mut Velocity,
     rect: &Rect,
     other: &Rect,
     position_response: &Rect,
+    collision_response: &CollisionResponse,
 ) {
     if rect.min.y < other.min.y {
-        velocity.value.y = 0.0;
+        velocity.value.y = -collision_response.velocity.y;
         transform.translation.y = position_response.min.y;
     } else if rect.max.y > other.max.y {
-        velocity.value.y = 0.0;
+        velocity.value.y = collision_response.velocity.y;
         transform.translation.y = position_response.max.y;
     }
 }
