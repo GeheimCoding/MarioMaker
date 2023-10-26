@@ -2,6 +2,7 @@ use crate::characters::player::components::{Player, State};
 use crate::characters::player::movement::components::{
     Acceleration, Airborne, CoyoteJump, JumpBuffer, JumpTimer,
 };
+use crate::characters::systems::is_colliding;
 use crate::components::{Collider, Direction, Velocity};
 use crate::events::Grounded;
 use crate::world::components::Block;
@@ -90,101 +91,6 @@ pub fn jump(
         if jump_buffer.0.finished() {
             commands.entity(entity).remove::<JumpBuffer>();
         }
-    }
-}
-
-pub fn horizontal_collision_response(
-    mut player_query: Query<(&Collider, &mut Transform, &mut Velocity), With<Player>>,
-    block_query: Query<(&Collider, &Transform), (With<Block>, Without<Player>)>,
-) {
-    let (player_collider, mut player_transform, mut velocity) = player_query.single_mut();
-
-    for (block_collider, block_transform) in block_query.iter() {
-        let player_rect = player_collider.get_rect(&player_transform);
-        let block_rect = block_collider.get_rect(block_transform);
-
-        if is_colliding(&player_rect, &block_rect) {
-            let position_response = player_collider.position_response(&block_rect);
-            respond_to_horizontal_collision(
-                &mut player_transform,
-                &mut velocity,
-                &player_rect,
-                &block_rect,
-                &position_response,
-            );
-        }
-    }
-}
-
-pub fn vertical_collision_response(
-    mut commands: Commands,
-    mut grounded_event: EventWriter<Grounded>,
-    mut player_query: Query<(Entity, &Collider, &mut Transform, &mut Velocity), With<Player>>,
-    block_query: Query<(&Collider, &Transform), (With<Block>, Without<Player>)>,
-) {
-    let (player, player_collider, mut player_transform, mut velocity) = player_query.single_mut();
-
-    for (block_collider, block_transform) in block_query.iter() {
-        let player_rect = player_collider.get_rect(&player_transform);
-        let block_rect = block_collider.get_rect(block_transform);
-
-        if is_colliding(&player_rect, &block_rect) {
-            let position_response = player_collider.position_response(&block_rect);
-            respond_to_vertical_collision(
-                &mut player_transform,
-                &mut velocity,
-                &player_rect,
-                &block_rect,
-                &position_response,
-            );
-            if player_rect.max.y > block_rect.max.y {
-                commands.entity(player).remove::<Airborne>();
-                grounded_event.send(Grounded(player));
-            } else {
-                commands.entity(player).remove::<JumpTimer>();
-            }
-        }
-    }
-}
-
-pub fn confine_in_window(
-    mut commands: Commands,
-    mut grounded_event: EventWriter<Grounded>,
-    mut player_query: Query<(Entity, &Collider, &mut Transform, &mut Velocity), With<Player>>,
-    camera_query: Query<(&OrthographicProjection, &Transform), (With<Camera>, Without<Player>)>,
-) {
-    let (player, collider, mut player_transform, mut velocity) = player_query.single_mut();
-    let (projection, camera_transform) = camera_query.single();
-    let camera_rect = Rect {
-        min: projection.area.min + camera_transform.translation.truncate(),
-        max: projection.area.max + camera_transform.translation.truncate(),
-    };
-    let player_rect = collider.get_rect(&player_transform);
-    let position_response = collider.position_response(&camera_rect);
-    let position_response = Rect {
-        min: position_response.min + collider.size,
-        max: position_response.max - collider.size,
-    };
-
-    respond_to_horizontal_collision(
-        &mut player_transform,
-        &mut velocity,
-        &player_rect,
-        &camera_rect,
-        &position_response,
-    );
-    respond_to_vertical_collision(
-        &mut player_transform,
-        &mut velocity,
-        &player_rect,
-        &camera_rect,
-        &position_response,
-    );
-    if player_rect.min.y < camera_rect.min.y {
-        commands.entity(player).remove::<Airborne>();
-        grounded_event.send(Grounded(player));
-    } else if player_rect.max.y > camera_rect.max.y {
-        commands.entity(player).remove::<JumpTimer>();
     }
 }
 
@@ -280,41 +186,5 @@ fn apply_friction(velocity: f32, friction: f32) -> f32 {
         (velocity + friction).min(0.0)
     } else {
         0.0
-    }
-}
-
-pub fn is_colliding(lhs: &Rect, rhs: &Rect) -> bool {
-    lhs.max.x > rhs.min.x && lhs.min.x < rhs.max.x && lhs.max.y > rhs.min.y && lhs.min.y < rhs.max.y
-}
-
-pub fn respond_to_horizontal_collision(
-    transform: &mut Transform,
-    velocity: &mut Velocity,
-    rect: &Rect,
-    other: &Rect,
-    position_response: &Rect,
-) {
-    if rect.min.x < other.min.x {
-        velocity.value.x = 0.0;
-        transform.translation.x = position_response.min.x;
-    } else if rect.max.x > other.max.x {
-        velocity.value.x = 0.0;
-        transform.translation.x = position_response.max.x;
-    }
-}
-
-pub fn respond_to_vertical_collision(
-    transform: &mut Transform,
-    velocity: &mut Velocity,
-    rect: &Rect,
-    other: &Rect,
-    position_response: &Rect,
-) {
-    if rect.min.y < other.min.y {
-        velocity.value.y = 0.0;
-        transform.translation.y = position_response.min.y;
-    } else if rect.max.y > other.max.y {
-        velocity.value.y = 0.0;
-        transform.translation.y = position_response.max.y;
     }
 }

@@ -1,8 +1,9 @@
 use crate::characters::enemies::beetle::components::{Beetle, State};
 use crate::characters::enemies::beetle::resources::{Animations, Texture};
-use crate::characters::player::movement::systems::{
-    is_colliding, respond_to_horizontal_collision, respond_to_vertical_collision,
+use crate::characters::movement::systems::{
+    respond_to_horizontal_collision, respond_to_vertical_collision,
 };
+use crate::characters::systems::is_colliding;
 use crate::components::{Collider, Direction, Gravity, Velocity};
 use crate::content_manager::{TextureData, Textures};
 use crate::world::components::Block;
