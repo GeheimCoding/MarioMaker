@@ -9,17 +9,16 @@ pub struct MovementPlugin;
 impl Plugin for MovementPlugin {
     fn build(&self, app: &mut App) {
         use crate::system_sets::UpdateSet::*;
-        app.add_systems(Update, horizontal_movement.in_set(HorizontalMovement))
+        app.add_systems(Update, run.in_set(HorizontalMovementActions))
             .add_systems(
                 Update,
                 horizontal_collision_response.in_set(HorizontalConfinement),
             )
             .add_systems(
                 Update,
-                (jump, gaze, crouch, vertical_movement)
-                    .chain()
-                    .in_set(VerticalMovement),
+                (jump, gaze, crouch).chain().in_set(VerticalMovementActions),
             )
+            .add_systems(Update, vertical_movement.in_set(VerticalMovement))
             .add_systems(
                 Update,
                 (vertical_collision_response, confine_in_window).in_set(VerticalConfinement),

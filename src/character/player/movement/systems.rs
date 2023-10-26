@@ -8,7 +8,7 @@ use crate::world::components::Block;
 use bevy::prelude::KeyCode::{Down, S};
 use bevy::prelude::*;
 
-pub fn horizontal_movement(
+pub fn run(
     time: Res<Time>,
     keyboard_input: Res<Input<KeyCode>>,
     mut grounded_event: EventReader<Grounded>,

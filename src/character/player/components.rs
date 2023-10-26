@@ -7,7 +7,7 @@ pub struct Player;
 pub enum State {
     #[default]
     Idle,
-    Walking,
+    Running,
     Jumping,
     Falling,
     Gazing,

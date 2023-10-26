@@ -122,10 +122,11 @@ pub fn vertical_collision_response(
 pub fn handle_velocity_change(
     mut query: Query<(&mut Direction, &Velocity), (With<Beetle>, Changed<Velocity>)>,
 ) {
-    let (mut direction, velocity) = query.single_mut();
-    if velocity.value.x < 0.0 {
-        *direction = Direction::Left;
-    } else if velocity.value.x > 0.0 {
-        *direction = Direction::Right;
+    for (mut direction, velocity) in query.iter_mut() {
+        if velocity.value.x < 0.0 {
+            *direction = Direction::Left;
+        } else if velocity.value.x > 0.0 {
+            *direction = Direction::Right;
+        }
     }
 }
