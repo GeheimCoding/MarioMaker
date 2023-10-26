@@ -15,7 +15,7 @@ pub fn horizontal_movement(
     }
 }
 
-pub fn horizontal_collision_response(
+pub fn horizontal_block_collision_response(
     mut character_query: Query<
         (&Collider, &CollisionResponse, &mut Transform, &mut Velocity),
         With<Character>,
@@ -53,7 +53,7 @@ pub fn vertical_movement(
     }
 }
 
-pub fn vertical_collision_response(
+pub fn vertical_block_collision_response(
     mut commands: Commands,
     mut grounded_event: EventWriter<Grounded>,
     mut character_query: Query<

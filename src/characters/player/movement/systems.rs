@@ -60,7 +60,7 @@ pub fn jump(
 ) {
     let (entity, mut velocity, airborne, jump_buffer, jump_timer) = query.single_mut();
     let mut jump = |commands: &mut Commands| {
-        velocity.value.y = 180.0;
+        velocity.value.y = 200.0;
         commands.entity(entity).insert(Airborne);
         commands
             .entity(entity)
