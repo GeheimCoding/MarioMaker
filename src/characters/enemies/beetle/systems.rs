@@ -1,4 +1,4 @@
-use crate::characters::components::{Character, CollisionResponse, Jumpable};
+use crate::characters::components::{Character, CollisionResponse, Hurting, Jumpable};
 use crate::characters::enemies::beetle::components::{Beetle, State};
 use crate::characters::enemies::beetle::resources::{Animations, Texture};
 use crate::characters::events::JumpedOn;
@@ -32,6 +32,7 @@ pub fn spawn(
 ) {
     commands.spawn((
         Beetle,
+        Hurting,
         Jumpable,
         Character,
         CollisionResponse {
@@ -89,6 +90,7 @@ pub fn die(
             velocity.value.x = 0.0;
             collision_response.velocity = Vec2::ZERO;
             commands.entity(beetle).remove::<Jumpable>();
+            commands.entity(beetle).remove::<Hurting>();
         }
     }
 }

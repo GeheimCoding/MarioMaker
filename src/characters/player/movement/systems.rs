@@ -1,4 +1,4 @@
-use crate::characters::components::Jumpable;
+use crate::characters::components::{Hurting, Jumpable};
 use crate::characters::events::{Grounded, JumpedOn};
 use crate::characters::player::components::{Player, State};
 use crate::characters::player::movement::components::{
@@ -191,6 +191,21 @@ pub fn jump_on(
                     .insert(JumpTimer(Timer::from_seconds(0.2, TimerMode::Once)));
                 jumped_on_event.send(JumpedOn(enemy));
             }
+        }
+    }
+}
+
+pub fn take_damage(
+    mut player_query: Query<(&Collider, &mut Transform), With<Player>>,
+    mut enemy_query: Query<(&Collider, &Transform), (With<Hurting>, Without<Player>)>,
+) {
+    let (player_collider, mut player_transform) = player_query.single_mut();
+    for (enemy_collider, enemy_transform) in enemy_query.iter_mut() {
+        let player_rect = player_collider.get_rect(&player_transform);
+        let enemy_rect = enemy_collider.get_rect(enemy_transform);
+
+        if is_colliding(&player_rect, &enemy_rect) {
+            player_transform.translation = Vec3::ZERO;
         }
     }
 }
