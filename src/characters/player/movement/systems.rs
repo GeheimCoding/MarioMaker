@@ -1,10 +1,11 @@
+use crate::characters::components::Character;
+use crate::characters::events::{Grounded, JumpedOn};
 use crate::characters::player::components::{Player, State};
 use crate::characters::player::movement::components::{
     Acceleration, Airborne, CoyoteJump, JumpBuffer, JumpTimer,
 };
 use crate::characters::systems::is_colliding;
 use crate::components::{Collider, Direction, Velocity};
-use crate::events::Grounded;
 use crate::world::components::Block;
 use bevy::prelude::KeyCode::{Down, S};
 use bevy::prelude::*;
@@ -164,6 +165,32 @@ pub fn gaze(
             *state = State::Gazing;
         } else if *state == State::Gazing {
             *state = State::Idle;
+        }
+    }
+}
+
+pub fn jump_on(
+    mut commands: Commands,
+    mut jumped_on_event: EventWriter<JumpedOn>,
+    mut player_query: Query<(Entity, &Collider, &mut Transform, &mut Velocity), With<Player>>,
+    mut enemy_query: Query<(Entity, &Collider, &Transform), (With<Character>, Without<Player>)>,
+) {
+    let (player, player_collider, mut player_transform, mut velocity) = player_query.single_mut();
+    for (enemy, enemy_collider, enemy_transform) in enemy_query.iter_mut() {
+        let player_rect = player_collider.get_rect(&player_transform);
+        let enemy_rect = enemy_collider.get_rect(enemy_transform);
+
+        if is_colliding(&player_rect, &enemy_rect) {
+            let position_response = player_collider.position_response(&enemy_rect);
+            if velocity.value.y < 0.0 {
+                player_transform.translation.y = position_response.max.y;
+                velocity.value.y = 200.0;
+                commands.entity(player).insert(Airborne);
+                commands
+                    .entity(player)
+                    .insert(JumpTimer(Timer::from_seconds(0.2, TimerMode::Once)));
+                jumped_on_event.send(JumpedOn(enemy));
+            }
         }
     }
 }

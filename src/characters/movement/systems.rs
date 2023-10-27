@@ -1,8 +1,8 @@
 use crate::characters::components::{Character, CollisionResponse};
+use crate::characters::events::Grounded;
 use crate::characters::player::movement::components::{Airborne, JumpTimer};
 use crate::characters::systems::is_colliding;
 use crate::components::{Collider, Velocity};
-use crate::events::Grounded;
 use crate::world::components::Block;
 use bevy::prelude::*;
 

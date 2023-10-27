@@ -12,7 +12,9 @@ impl Plugin for MovementPlugin {
         app.add_systems(Update, run.in_set(HorizontalMovementActions))
             .add_systems(
                 Update,
-                (jump, gaze, crouch).chain().in_set(VerticalMovementActions),
+                (jump, jump_on, gaze, crouch)
+                    .chain()
+                    .in_set(VerticalMovementActions),
             )
             .add_systems(Update, (coyote_jump, reset_coyote_jump));
     }

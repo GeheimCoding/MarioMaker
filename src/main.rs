@@ -1,5 +1,4 @@
 use crate::characters::CharacterPlugin;
-use crate::events::Grounded;
 use crate::resources::MousePosition;
 use crate::system_sets::SystemSetPlugin;
 use crate::systems::*;
@@ -10,7 +9,6 @@ use bevy::window::close_on_esc;
 mod characters;
 mod components;
 mod content_manager;
-mod events;
 mod resources;
 mod system_sets;
 mod systems;
@@ -20,7 +18,6 @@ fn main() {
     App::new()
         .init_resource::<MousePosition>()
         .insert_resource(ClearColor(Color::CYAN))
-        .add_event::<Grounded>()
         .add_plugins((
             DefaultPlugins
                 .set(WindowPlugin {
