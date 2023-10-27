@@ -1,4 +1,4 @@
-use crate::characters::components::Character;
+use crate::characters::components::Jumpable;
 use crate::characters::events::{Grounded, JumpedOn};
 use crate::characters::player::components::{Player, State};
 use crate::characters::player::movement::components::{
@@ -173,7 +173,7 @@ pub fn jump_on(
     mut commands: Commands,
     mut jumped_on_event: EventWriter<JumpedOn>,
     mut player_query: Query<(Entity, &Collider, &mut Transform, &mut Velocity), With<Player>>,
-    mut enemy_query: Query<(Entity, &Collider, &Transform), (With<Character>, Without<Player>)>,
+    mut enemy_query: Query<(Entity, &Collider, &Transform), (With<Jumpable>, Without<Player>)>,
 ) {
     let (player, player_collider, mut player_transform, mut velocity) = player_query.single_mut();
     for (enemy, enemy_collider, enemy_transform) in enemy_query.iter_mut() {

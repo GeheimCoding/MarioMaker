@@ -7,3 +7,6 @@ pub struct Character;
 pub struct CollisionResponse {
     pub velocity: Vec2,
 }
+
+#[derive(Component)]
+pub struct Jumpable;

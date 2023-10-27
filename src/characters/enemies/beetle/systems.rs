@@ -1,7 +1,8 @@
-use crate::characters::components::{Character, CollisionResponse};
+use crate::characters::components::{Character, CollisionResponse, Jumpable};
 use crate::characters::enemies::beetle::components::{Beetle, State};
 use crate::characters::enemies::beetle::resources::{Animations, Texture};
-use crate::components::{Collider, Direction, Gravity, Velocity};
+use crate::characters::events::JumpedOn;
+use crate::components::{Animation, Collider, Direction, Gravity, Velocity};
 use crate::content_manager::{TextureData, Textures};
 use bevy::prelude::*;
 
@@ -31,6 +32,7 @@ pub fn spawn(
 ) {
     commands.spawn((
         Beetle,
+        Jumpable,
         Character,
         CollisionResponse {
             velocity: Vec2::new(50.0, 0.0),
@@ -63,6 +65,30 @@ pub fn handle_velocity_change(
             *direction = Direction::Left;
         } else if velocity.value.x > 0.0 {
             *direction = Direction::Right;
+        }
+    }
+}
+
+pub fn die(
+    mut commands: Commands,
+    animations: Res<Animations>,
+    mut jumped_on_event: EventReader<JumpedOn>,
+    mut query: Query<
+        (
+            Entity,
+            &mut Animation,
+            &mut Velocity,
+            &mut CollisionResponse,
+        ),
+        With<Beetle>,
+    >,
+) {
+    for (beetle, mut animation, mut velocity, mut collision_response) in query.iter_mut() {
+        if jumped_on_event.iter().any(|event| event.0 == beetle) {
+            *animation = animations.get(&State::IdleDead);
+            velocity.value.x = 0.0;
+            collision_response.velocity = Vec2::ZERO;
+            commands.entity(beetle).remove::<Jumpable>();
         }
     }
 }

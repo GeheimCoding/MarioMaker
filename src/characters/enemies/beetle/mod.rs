@@ -14,6 +14,7 @@ impl Plugin for BeetlePlugin {
         app.init_resource::<Animations>()
             .add_systems(PreStartup, init)
             .add_systems(Startup, spawn)
-            .add_systems(Update, handle_velocity_change.in_set(ChangeDetection));
+            .add_systems(Update, handle_velocity_change.in_set(ChangeDetection))
+            .add_systems(Update, die);
     }
 }
