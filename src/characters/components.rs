@@ -12,4 +12,7 @@ pub struct CollisionResponse {
 pub struct Jumpable;
 
 #[derive(Component)]
+pub struct Kickable;
+
+#[derive(Component)]
 pub struct Hurting;

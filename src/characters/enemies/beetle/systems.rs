@@ -1,7 +1,7 @@
-use crate::characters::components::{Character, CollisionResponse, Hurting, Jumpable};
-use crate::characters::enemies::beetle::components::{Beetle, State};
+use crate::characters::components::{Character, CollisionResponse, Hurting, Jumpable, Kickable};
+use crate::characters::enemies::beetle::components::{Beetle, KickTimer, State};
 use crate::characters::enemies::beetle::resources::{Animations, Texture};
-use crate::characters::events::JumpedOn;
+use crate::characters::events::{JumpedOn, Kicked};
 use crate::components::{Animation, Collider, Direction, Gravity, Velocity};
 use crate::content_manager::{TextureData, Textures};
 use bevy::prelude::*;
@@ -91,6 +91,55 @@ pub fn die(
             collision_response.velocity = Vec2::ZERO;
             commands.entity(beetle).remove::<Jumpable>();
             commands.entity(beetle).remove::<Hurting>();
+            commands.entity(beetle).insert(Kickable);
+        }
+    }
+}
+
+pub fn get_kicked(
+    mut commands: Commands,
+    animations: Res<Animations>,
+    mut kicked_event: EventReader<Kicked>,
+    mut query: Query<
+        (
+            Entity,
+            &mut Animation,
+            &mut Velocity,
+            &mut CollisionResponse,
+        ),
+        With<Beetle>,
+    >,
+) {
+    let speed = 180.0;
+    for (beetle, mut animation, mut velocity, mut collision_response) in query.iter_mut() {
+        for event in kicked_event.iter() {
+            if event.entity != beetle {
+                continue;
+            }
+            *animation = animations.get(&State::Rolling);
+            velocity.value.x = if event.direction == Direction::Left {
+                -speed
+            } else {
+                speed
+            };
+            collision_response.velocity.x = speed;
+            commands.entity(beetle).remove::<Kickable>();
+            commands
+                .entity(beetle)
+                .insert(KickTimer(Timer::from_seconds(0.2, TimerMode::Once)));
+        }
+    }
+}
+
+pub fn reset_jumpable(
+    time: Res<Time>,
+    mut commands: Commands,
+    mut query: Query<(Entity, &mut KickTimer), With<Beetle>>,
+) {
+    for (beetle, mut kick_timer) in query.iter_mut() {
+        if kick_timer.0.tick(time.delta()).just_finished() {
+            commands.entity(beetle).remove::<KickTimer>();
+            commands.entity(beetle).insert((Hurting, Jumpable));
         }
     }
 }

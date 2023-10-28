@@ -4,7 +4,7 @@ use crate::characters::player::systems::*;
 use crate::system_sets::UpdateSet;
 use bevy::prelude::*;
 
-mod components;
+pub mod components;
 pub mod movement;
 mod resources;
 mod systems;

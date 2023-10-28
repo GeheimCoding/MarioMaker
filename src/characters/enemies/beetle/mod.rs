@@ -14,9 +14,10 @@ impl Plugin for BeetlePlugin {
         app.init_resource::<Animations>()
             .add_systems(PreStartup, init)
             .add_systems(Startup, spawn)
+            .add_systems(Update, reset_jumpable)
             .add_systems(
                 Update,
-                (handle_velocity_change, die).in_set(ChangeDetection),
+                (handle_velocity_change, die, get_kicked).in_set(ChangeDetection),
             );
     }
 }

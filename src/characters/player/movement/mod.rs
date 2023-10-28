@@ -13,9 +13,10 @@ impl Plugin for MovementPlugin {
             .add_systems(Update, take_damage.in_set(HorizontalConfinement))
             .add_systems(
                 Update,
-                (jump, gaze, crouch).chain().in_set(VerticalMovementActions),
+                (jump, gaze, crouch, jump_on)
+                    .chain()
+                    .in_set(VerticalMovementActions),
             )
-            .add_systems(Update, jump_on.in_set(VerticalConfinement))
             .add_systems(Update, (coyote_jump, reset_coyote_jump));
     }
 }

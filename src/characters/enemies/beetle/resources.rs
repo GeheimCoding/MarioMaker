@@ -22,7 +22,7 @@ impl Default for Animations {
             (State::Walking, Animation::repeating(0.2, vec![0, 1], 0)),
             (
                 State::Rolling,
-                Animation::repeating(0.2, vec![2, 3, 4, 5], 3),
+                Animation::repeating(0.1, vec![2, 3, 4, 5], 3),
             ),
         ]);
         Self(animations)

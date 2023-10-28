@@ -1,4 +1,4 @@
-use bevy::prelude::Component;
+use bevy::prelude::*;
 
 #[derive(Component)]
 pub struct Beetle;
@@ -11,3 +11,6 @@ pub enum State {
     Walking,
     Rolling,
 }
+
+#[derive(Component)]
+pub struct KickTimer(pub Timer);
