@@ -2,13 +2,16 @@ use crate::components::Direction;
 use bevy::prelude::*;
 
 #[derive(Event)]
-pub struct Grounded(pub Entity);
+pub struct GroundedEvent(pub Entity);
 
 #[derive(Event)]
-pub struct JumpedOn(pub Entity);
+pub struct JumpedOnEvent(pub Entity);
 
 #[derive(Event)]
-pub struct Kicked {
+pub struct KickedEvent {
     pub entity: Entity,
     pub direction: Direction,
 }
+
+#[derive(Event)]
+pub struct GrabbedEvent(pub Entity);

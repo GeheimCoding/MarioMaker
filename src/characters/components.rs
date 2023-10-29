@@ -15,4 +15,13 @@ pub struct Jumpable;
 pub struct Kickable;
 
 #[derive(Component)]
+pub struct Grabable;
+
+#[derive(Component)]
+pub struct Grabbing(pub Entity);
+
+#[derive(Component)]
+pub struct Grabbed;
+
+#[derive(Component)]
 pub struct Hurting;

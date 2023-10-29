@@ -1,5 +1,5 @@
 use crate::characters::components::{Character, CollisionResponse};
-use crate::characters::events::Grounded;
+use crate::characters::events::GroundedEvent;
 use crate::characters::player::movement::components::{Airborne, JumpTimer};
 use crate::characters::systems::is_colliding;
 use crate::components::{Collider, Velocity};
@@ -55,7 +55,7 @@ pub fn vertical_movement(
 
 pub fn vertical_block_collision_response(
     mut commands: Commands,
-    mut grounded_event: EventWriter<Grounded>,
+    mut grounded_event: EventWriter<GroundedEvent>,
     mut character_query: Query<
         (
             Entity,
@@ -92,7 +92,7 @@ pub fn vertical_block_collision_response(
                 );
                 if character_rect.max.y > block_rect.max.y {
                     commands.entity(character).remove::<Airborne>();
-                    grounded_event.send(Grounded(character));
+                    grounded_event.send(GroundedEvent(character));
                 } else {
                     commands.entity(character).remove::<JumpTimer>();
                 }
@@ -103,7 +103,7 @@ pub fn vertical_block_collision_response(
 
 pub fn confine_in_window(
     mut commands: Commands,
-    mut grounded_event: EventWriter<Grounded>,
+    mut grounded_event: EventWriter<GroundedEvent>,
     mut character_query: Query<
         (
             Entity,
@@ -152,7 +152,7 @@ pub fn confine_in_window(
         );
         if character_rect.min.y < camera_rect.min.y {
             commands.entity(character).remove::<Airborne>();
-            grounded_event.send(Grounded(character));
+            grounded_event.send(GroundedEvent(character));
         } else if character_rect.max.y > camera_rect.max.y {
             commands.entity(character).remove::<JumpTimer>();
         }

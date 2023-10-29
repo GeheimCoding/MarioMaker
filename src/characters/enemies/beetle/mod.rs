@@ -17,7 +17,7 @@ impl Plugin for BeetlePlugin {
             .add_systems(Update, reset_jumpable)
             .add_systems(
                 Update,
-                (handle_velocity_change, die, get_kicked).in_set(ChangeDetection),
+                (handle_velocity_change, die, get_kicked, get_grabbed).in_set(ChangeDetection),
             );
     }
 }

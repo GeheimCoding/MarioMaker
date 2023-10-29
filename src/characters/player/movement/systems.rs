@@ -1,5 +1,5 @@
-use crate::characters::components::{Hurting, Jumpable};
-use crate::characters::events::{Grounded, JumpedOn};
+use crate::characters::components::{Grabbed, Hurting, Jumpable};
+use crate::characters::events::{GroundedEvent, JumpedOnEvent};
 use crate::characters::player::components::{Player, State};
 use crate::characters::player::movement::components::{
     Acceleration, Airborne, CoyoteJump, JumpBuffer, JumpTimer,
@@ -13,7 +13,7 @@ use bevy::prelude::*;
 pub fn run(
     time: Res<Time>,
     keyboard_input: Res<Input<KeyCode>>,
-    mut grounded_event: EventReader<Grounded>,
+    mut grounded_event: EventReader<GroundedEvent>,
     mut query: Query<(Entity, &mut Direction, &mut Velocity, &Acceleration, &State), With<Player>>,
 ) {
     let (player, mut player_direction, mut player_velocity, acceleration, state) =
@@ -154,7 +154,7 @@ pub fn crouch(
 
 pub fn gaze(
     keyboard_input: Res<Input<KeyCode>>,
-    mut grounded_event: EventReader<Grounded>,
+    mut grounded_event: EventReader<GroundedEvent>,
     mut query: Query<(Entity, &mut State, &Velocity), With<Player>>,
 ) {
     let (player, mut state, velocity) = query.single_mut();
@@ -171,9 +171,12 @@ pub fn gaze(
 
 pub fn jump_on(
     mut commands: Commands,
-    mut jumped_on_event: EventWriter<JumpedOn>,
+    mut jumped_on_event: EventWriter<JumpedOnEvent>,
     mut player_query: Query<(Entity, &Collider, &mut Transform, &mut Velocity), With<Player>>,
-    mut enemy_query: Query<(Entity, &Collider, &Transform), (With<Jumpable>, Without<Player>)>,
+    mut enemy_query: Query<
+        (Entity, &Collider, &Transform),
+        (With<Jumpable>, Without<Player>, Without<Grabbed>),
+    >,
 ) {
     let (player, player_collider, mut player_transform, mut velocity) = player_query.single_mut();
     for (enemy, enemy_collider, enemy_transform) in enemy_query.iter_mut() {
@@ -189,7 +192,7 @@ pub fn jump_on(
                 commands
                     .entity(player)
                     .insert(JumpTimer(Timer::from_seconds(0.2, TimerMode::Once)));
-                jumped_on_event.send(JumpedOn(enemy));
+                jumped_on_event.send(JumpedOnEvent(enemy));
             }
         }
     }

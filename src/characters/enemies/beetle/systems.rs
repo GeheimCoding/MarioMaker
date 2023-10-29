@@ -1,7 +1,9 @@
-use crate::characters::components::{Character, CollisionResponse, Hurting, Jumpable, Kickable};
+use crate::characters::components::{
+    Character, CollisionResponse, Grabable, Grabbed, Hurting, Jumpable, Kickable,
+};
 use crate::characters::enemies::beetle::components::{Beetle, KickTimer, State};
 use crate::characters::enemies::beetle::resources::{Animations, Texture};
-use crate::characters::events::{JumpedOn, Kicked};
+use crate::characters::events::{GrabbedEvent, JumpedOnEvent, KickedEvent};
 use crate::components::{Animation, Collider, Direction, Gravity, Velocity};
 use crate::content_manager::{TextureData, Textures};
 use bevy::prelude::*;
@@ -73,7 +75,7 @@ pub fn handle_velocity_change(
 pub fn die(
     mut commands: Commands,
     animations: Res<Animations>,
-    mut jumped_on_event: EventReader<JumpedOn>,
+    mut jumped_on_event: EventReader<JumpedOnEvent>,
     mut query: Query<
         (
             Entity,
@@ -81,7 +83,7 @@ pub fn die(
             &mut Velocity,
             &mut CollisionResponse,
         ),
-        With<Beetle>,
+        (With<Beetle>, Without<Grabbed>),
     >,
 ) {
     for (beetle, mut animation, mut velocity, mut collision_response) in query.iter_mut() {
@@ -91,6 +93,7 @@ pub fn die(
             collision_response.velocity = Vec2::ZERO;
             commands.entity(beetle).remove::<Jumpable>();
             commands.entity(beetle).remove::<Hurting>();
+            commands.entity(beetle).insert(Grabable);
             commands.entity(beetle).insert(Kickable);
         }
     }
@@ -99,7 +102,7 @@ pub fn die(
 pub fn get_kicked(
     mut commands: Commands,
     animations: Res<Animations>,
-    mut kicked_event: EventReader<Kicked>,
+    mut kicked_event: EventReader<KickedEvent>,
     mut query: Query<
         (
             Entity,
@@ -107,7 +110,7 @@ pub fn get_kicked(
             &mut Velocity,
             &mut CollisionResponse,
         ),
-        With<Beetle>,
+        (With<Beetle>, Without<Grabbed>),
     >,
 ) {
     let speed = 180.0;
@@ -134,12 +137,39 @@ pub fn get_kicked(
 pub fn reset_jumpable(
     time: Res<Time>,
     mut commands: Commands,
-    mut query: Query<(Entity, &mut KickTimer), With<Beetle>>,
+    mut query: Query<(Entity, &mut KickTimer), (With<Beetle>, Without<Grabbed>)>,
 ) {
     for (beetle, mut kick_timer) in query.iter_mut() {
         if kick_timer.0.tick(time.delta()).just_finished() {
             commands.entity(beetle).remove::<KickTimer>();
             commands.entity(beetle).insert((Hurting, Jumpable));
+        }
+    }
+}
+
+pub fn get_grabbed(
+    mut commands: Commands,
+    animations: Res<Animations>,
+    mut grabbed_event: EventReader<GrabbedEvent>,
+    mut query: Query<
+        (
+            Entity,
+            &mut Animation,
+            &mut Velocity,
+            &mut CollisionResponse,
+        ),
+        With<Beetle>,
+    >,
+) {
+    for (beetle, mut animation, mut velocity, mut collision_response) in query.iter_mut() {
+        for event in grabbed_event.iter() {
+            if event.0 != beetle {
+                continue;
+            }
+            *animation = animations.get(&State::IdleDead);
+            velocity.value = Vec2::ZERO;
+            collision_response.velocity = Vec2::ZERO;
+            commands.entity(beetle).insert(Grabbed);
         }
     }
 }

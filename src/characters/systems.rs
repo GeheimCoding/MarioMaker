@@ -1,5 +1,5 @@
-use crate::characters::components::Kickable;
-use crate::characters::events::Kicked;
+use crate::characters::components::{Grabable, Grabbed, Kickable};
+use crate::characters::events::{GrabbedEvent, KickedEvent};
 use crate::characters::player::components::Player;
 use crate::components::Collider;
 use crate::components::Direction;
@@ -10,9 +10,12 @@ pub fn is_colliding(lhs: &Rect, rhs: &Rect) -> bool {
 }
 
 pub fn kick(
-    mut kicked_event: EventWriter<Kicked>,
+    mut kicked_event: EventWriter<KickedEvent>,
     mut player_query: Query<(&Collider, &Transform), With<Player>>,
-    mut enemy_query: Query<(Entity, &Collider, &Transform), (With<Kickable>, Without<Player>)>,
+    mut enemy_query: Query<
+        (Entity, &Collider, &Transform),
+        (With<Kickable>, Without<Player>, Without<Grabbed>),
+    >,
 ) {
     let (player_collider, player_transform) = player_query.single_mut();
     for (enemy, enemy_collider, enemy_transform) in enemy_query.iter_mut() {
@@ -26,10 +29,35 @@ pub fn kick(
             } else {
                 Direction::Left
             };
-            kicked_event.send(Kicked {
+            kicked_event.send(KickedEvent {
                 entity: enemy,
                 direction,
             });
+        }
+    }
+}
+
+pub fn grab(
+    keyboard_input: Res<Input<KeyCode>>,
+    mut grabbed_event: EventWriter<GrabbedEvent>,
+    mut player_query: Query<(&Collider, &Transform), With<Player>>,
+    mut enemy_query: Query<
+        (Entity, &Collider, &Transform),
+        (With<Grabable>, Without<Player>, Without<Grabbed>),
+    >,
+) {
+    if !keyboard_input.pressed(KeyCode::ShiftLeft) {
+        return;
+    }
+    let (player_collider, player_transform) = player_query.single_mut();
+    for (enemy, enemy_collider, enemy_transform) in enemy_query.iter_mut() {
+        let player_rect = player_collider.get_rect(&player_transform);
+
+        let enemy_rect = enemy_collider.get_rect(enemy_transform);
+
+        if is_colliding(&player_rect, &enemy_rect) {
+            grabbed_event.send(GrabbedEvent(enemy));
+            info!("grabbed");
         }
     }
 }

@@ -1,8 +1,8 @@
 use crate::characters::enemies::EnemyPlugin;
-use crate::characters::events::{Grounded, JumpedOn, Kicked};
+use crate::characters::events::{GrabbedEvent, GroundedEvent, JumpedOnEvent, KickedEvent};
 use crate::characters::movement::MovementPlugin;
 use crate::characters::player::PlayerPlugin;
-use crate::characters::systems::kick;
+use crate::characters::systems::{grab, kick};
 use crate::system_sets::UpdateSet::HorizontalMovementActions;
 use bevy::prelude::*;
 
@@ -18,10 +18,14 @@ pub struct CharacterPlugin;
 
 impl Plugin for CharacterPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<Grounded>()
-            .add_event::<JumpedOn>()
-            .add_event::<Kicked>()
+        app.add_event::<GroundedEvent>()
+            .add_event::<JumpedOnEvent>()
+            .add_event::<KickedEvent>()
+            .add_event::<GrabbedEvent>()
             .add_plugins((PlayerPlugin, EnemyPlugin, MovementPlugin))
-            .add_systems(Update, kick.in_set(HorizontalMovementActions));
+            .add_systems(
+                Update,
+                (grab, kick).chain().in_set(HorizontalMovementActions),
+            );
     }
 }
