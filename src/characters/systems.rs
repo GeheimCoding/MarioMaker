@@ -20,7 +20,6 @@ pub fn kick(
     let (player_collider, player_transform) = player_query.single_mut();
     for (enemy, enemy_collider, enemy_transform) in enemy_query.iter_mut() {
         let player_rect = player_collider.get_rect(&player_transform);
-
         let enemy_rect = enemy_collider.get_rect(enemy_transform);
 
         if is_colliding(&player_rect, &enemy_rect) {
@@ -52,12 +51,10 @@ pub fn grab(
     let (player_collider, player_transform) = player_query.single_mut();
     for (enemy, enemy_collider, enemy_transform) in enemy_query.iter_mut() {
         let player_rect = player_collider.get_rect(&player_transform);
-
         let enemy_rect = enemy_collider.get_rect(enemy_transform);
 
         if is_colliding(&player_rect, &enemy_rect) {
             grabbed_event.send(GrabbedEvent(enemy));
-            info!("grabbed");
         }
     }
 }

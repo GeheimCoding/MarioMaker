@@ -103,6 +103,7 @@ pub fn get_kicked(
     mut commands: Commands,
     animations: Res<Animations>,
     mut kicked_event: EventReader<KickedEvent>,
+    mut grabbed_event: EventReader<GrabbedEvent>,
     mut query: Query<
         (
             Entity,
@@ -116,7 +117,7 @@ pub fn get_kicked(
     let speed = 180.0;
     for (beetle, mut animation, mut velocity, mut collision_response) in query.iter_mut() {
         for event in kicked_event.iter() {
-            if event.entity != beetle {
+            if event.entity != beetle || grabbed_event.iter().any(|event| event.0 == beetle) {
                 continue;
             }
             *animation = animations.get(&State::Rolling);
@@ -160,7 +161,11 @@ pub fn get_grabbed(
         ),
         With<Beetle>,
     >,
+    grabbed_query: Query<Entity, With<Grabbed>>,
 ) {
+    if !grabbed_query.is_empty() {
+        return;
+    }
     for (beetle, mut animation, mut velocity, mut collision_response) in query.iter_mut() {
         for event in grabbed_event.iter() {
             if event.0 != beetle {
@@ -170,6 +175,7 @@ pub fn get_grabbed(
             velocity.value = Vec2::ZERO;
             collision_response.velocity = Vec2::ZERO;
             commands.entity(beetle).insert(Grabbed);
+            return;
         }
     }
 }

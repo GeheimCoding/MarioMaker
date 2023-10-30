@@ -6,7 +6,7 @@ use crate::characters::systems::{grab, kick};
 use crate::system_sets::UpdateSet::HorizontalMovementActions;
 use bevy::prelude::*;
 
-mod components;
+pub mod components;
 mod enemies;
 mod movement;
 pub mod player;
@@ -23,9 +23,6 @@ impl Plugin for CharacterPlugin {
             .add_event::<KickedEvent>()
             .add_event::<GrabbedEvent>()
             .add_plugins((PlayerPlugin, EnemyPlugin, MovementPlugin))
-            .add_systems(
-                Update,
-                (grab, kick).chain().in_set(HorizontalMovementActions),
-            );
+            .add_systems(Update, (grab, kick).in_set(HorizontalMovementActions));
     }
 }

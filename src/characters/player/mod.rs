@@ -19,7 +19,12 @@ impl Plugin for PlayerPlugin {
             .add_systems(Startup, spawn)
             .add_systems(
                 Update,
-                (handle_velocity_change, handle_state_change, move_camera)
+                (
+                    handle_velocity_change,
+                    handle_state_change,
+                    move_camera,
+                    hold_enemy,
+                )
                     .in_set(UpdateSet::ChangeDetection),
             );
     }

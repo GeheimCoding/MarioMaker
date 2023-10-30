@@ -1,3 +1,4 @@
+use crate::characters::components::Grabbed;
 use crate::characters::player::movement::components::JumpTimer;
 use crate::components::{Animation, Camera, Direction, Gravity, Velocity};
 use crate::resources::MousePosition;
@@ -34,7 +35,7 @@ pub fn animate(
 
 pub fn apply_gravity(
     time: Res<Time>,
-    mut query: Query<(&mut Velocity, &Gravity, Option<&JumpTimer>)>,
+    mut query: Query<(&mut Velocity, &Gravity, Option<&JumpTimer>), Without<Grabbed>>,
 ) {
     for (mut velocity, gravity, jump_timer) in query.iter_mut() {
         if jump_timer.is_none() || jump_timer.unwrap().0.finished() {

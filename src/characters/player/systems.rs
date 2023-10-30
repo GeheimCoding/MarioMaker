@@ -1,4 +1,4 @@
-use crate::characters::components::{Character, CollisionResponse};
+use crate::characters::components::{Character, CollisionResponse, Grabbed};
 use crate::characters::player::components::{Player, State};
 use crate::characters::player::movement::components::{Acceleration, Airborne, CoyoteJump};
 use crate::characters::player::resources::{Animations, Texture};
@@ -129,4 +129,17 @@ pub fn move_camera(
         camera_transform.translation.x = right_edge;
     }
     camera_transform.translation.y = player_transform.translation.y.clamp(0.0, 100.0);
+}
+
+pub fn hold_enemy(
+    player_query: Query<&Transform, With<Player>>,
+    mut enemy_query: Query<&mut Transform, (With<Grabbed>, Without<Player>)>,
+) {
+    if enemy_query.is_empty() {
+        return;
+    }
+    let player_transform = player_query.single();
+    let mut enemy_transform = enemy_query.single_mut();
+
+    enemy_transform.translation = player_transform.translation;
 }
