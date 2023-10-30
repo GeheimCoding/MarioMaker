@@ -23,7 +23,7 @@ impl Plugin for PlayerPlugin {
                     handle_velocity_change,
                     handle_state_change,
                     move_camera,
-                    hold_enemy,
+                    hold_item,
                 )
                     .in_set(UpdateSet::ChangeDetection),
             );

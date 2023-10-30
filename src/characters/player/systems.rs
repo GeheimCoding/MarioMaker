@@ -131,15 +131,21 @@ pub fn move_camera(
     camera_transform.translation.y = player_transform.translation.y.clamp(0.0, 100.0);
 }
 
-pub fn hold_enemy(
-    player_query: Query<&Transform, With<Player>>,
-    mut enemy_query: Query<&mut Transform, (With<Grabbed>, Without<Player>)>,
+pub fn hold_item(
+    player_query: Query<(&Transform, &Direction), With<Player>>,
+    mut item_query: Query<&mut Transform, (With<Grabbed>, Without<Player>)>,
 ) {
-    if enemy_query.is_empty() {
+    if item_query.is_empty() {
         return;
     }
-    let player_transform = player_query.single();
-    let mut enemy_transform = enemy_query.single_mut();
+    let (player_transform, direction) = player_query.single();
+    let mut item_transform = item_query.single_mut();
 
-    enemy_transform.translation = player_transform.translation;
+    item_transform.translation = player_transform.translation;
+    let offset = if *direction == Direction::Right {
+        10.0
+    } else {
+        -10.0
+    };
+    item_transform.translation.x += offset;
 }
