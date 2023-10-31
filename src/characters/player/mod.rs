@@ -1,7 +1,6 @@
 use crate::characters::player::movement::MovementPlugin;
 use crate::characters::player::resources::Animations;
 use crate::characters::player::systems::*;
-use crate::system_sets::UpdateSet;
 use bevy::prelude::*;
 
 pub mod components;
@@ -13,10 +12,16 @@ pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
+        use crate::system_sets::UpdateSet::*;
+
         app.init_resource::<Animations>()
             .add_plugins(MovementPlugin)
             .add_systems(PreStartup, init)
             .add_systems(Startup, spawn)
+            .add_systems(
+                Update,
+                (grab, kick, kick_held_item).in_set(HorizontalMovementActions),
+            )
             .add_systems(
                 Update,
                 (
@@ -25,7 +30,7 @@ impl Plugin for PlayerPlugin {
                     move_camera,
                     hold_item,
                 )
-                    .in_set(UpdateSet::ChangeDetection),
+                    .in_set(ChangeDetection),
             );
     }
 }

@@ -1,7 +1,9 @@
-use crate::characters::components::{Character, CollisionResponse, Grabbed};
+use crate::characters::components::{Character, CollisionResponse, Grabable, Grabbed, Kickable};
+use crate::characters::events::{GrabbedEvent, KickedEvent};
 use crate::characters::player::components::{Player, State};
 use crate::characters::player::movement::components::{Acceleration, Airborne, CoyoteJump};
 use crate::characters::player::resources::{Animations, Texture};
+use crate::characters::systems::is_colliding;
 use crate::components::{
     Animation, Collider, Direction, Gravity, Velocity, MIN_ANIMATION_DURATION,
 };
@@ -131,6 +133,56 @@ pub fn move_camera(
     camera_transform.translation.y = player_transform.translation.y.clamp(0.0, 100.0);
 }
 
+pub fn kick(
+    mut kicked_event: EventWriter<KickedEvent>,
+    mut player_query: Query<(&Collider, &Transform), With<Player>>,
+    mut enemy_query: Query<
+        (Entity, &Collider, &Transform),
+        (With<Kickable>, Without<Player>, Without<Grabbed>),
+    >,
+) {
+    let (player_collider, player_transform) = player_query.single_mut();
+    for (enemy, enemy_collider, enemy_transform) in enemy_query.iter_mut() {
+        let player_rect = player_collider.get_rect(&player_transform);
+        let enemy_rect = enemy_collider.get_rect(enemy_transform);
+
+        if is_colliding(&player_rect, &enemy_rect) {
+            let direction = if player_rect.min.x < enemy_rect.min.x {
+                Direction::Right
+            } else {
+                Direction::Left
+            };
+            kicked_event.send(KickedEvent {
+                entity: enemy,
+                direction,
+            });
+        }
+    }
+}
+
+pub fn grab(
+    keyboard_input: Res<Input<KeyCode>>,
+    mut grabbed_event: EventWriter<GrabbedEvent>,
+    mut player_query: Query<(&Collider, &Transform), With<Player>>,
+    mut enemy_query: Query<
+        (Entity, &Collider, &Transform),
+        (With<Grabable>, Without<Player>, Without<Grabbed>),
+    >,
+) {
+    if !keyboard_input.pressed(KeyCode::ShiftLeft) {
+        return;
+    }
+    let (player_collider, player_transform) = player_query.single_mut();
+    for (enemy, enemy_collider, enemy_transform) in enemy_query.iter_mut() {
+        let player_rect = player_collider.get_rect(&player_transform);
+        let enemy_rect = enemy_collider.get_rect(enemy_transform);
+
+        if is_colliding(&player_rect, &enemy_rect) {
+            grabbed_event.send(GrabbedEvent(enemy));
+        }
+    }
+}
+
 pub fn hold_item(
     player_query: Query<(&Transform, &Direction), With<Player>>,
     mut item_query: Query<&mut Transform, (With<Grabbed>, Without<Player>)>,
@@ -148,4 +200,26 @@ pub fn hold_item(
         -10.0
     };
     item_transform.translation.x += offset;
+}
+
+pub fn kick_held_item(
+    mut commands: Commands,
+    keyboard_input: Res<Input<KeyCode>>,
+    mut kicked_event: EventWriter<KickedEvent>,
+    player_query: Query<&Direction, With<Player>>,
+    item_query: Query<Entity, With<Grabbed>>,
+) {
+    if item_query.is_empty() {
+        return;
+    }
+    let item = item_query.single();
+    let &direction = player_query.single();
+
+    if keyboard_input.just_released(KeyCode::ShiftLeft) {
+        commands.entity(item).remove::<Grabbed>();
+        kicked_event.send(KickedEvent {
+            entity: item,
+            direction,
+        });
+    }
 }
