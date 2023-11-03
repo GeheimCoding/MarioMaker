@@ -208,7 +208,10 @@ pub fn take_damage(
         let enemy_rect = enemy_collider.get_rect(enemy_transform);
 
         if is_colliding(&player_rect, &enemy_rect) {
-            player_transform.translation = Vec3::ZERO;
+            let distance = enemy_rect.max.y - player_rect.min.y;
+            if distance > 4.0 {
+                player_transform.translation = Vec3::ZERO;
+            }
         }
     }
 }

@@ -91,10 +91,8 @@ pub fn die(
             *animation = animations.get(&State::IdleDead);
             velocity.value.x = 0.0;
             collision_response.velocity = Vec2::ZERO;
-            commands.entity(beetle).remove::<Jumpable>();
-            commands.entity(beetle).remove::<Hurting>();
-            commands.entity(beetle).insert(Grabable);
-            commands.entity(beetle).insert(Kickable);
+            commands.entity(beetle).remove::<(Jumpable, Hurting)>();
+            commands.entity(beetle).insert((Grabable, Kickable));
         }
     }
 }
@@ -114,7 +112,7 @@ pub fn get_kicked(
         (With<Beetle>, Without<Grabbed>),
     >,
 ) {
-    let speed = 180.0;
+    let speed = 200.0;
     for (beetle, mut animation, mut velocity, mut collision_response) in query.iter_mut() {
         for event in kicked_event.iter() {
             if event.entity != beetle || grabbed_event.iter().any(|event| event.0 == beetle) {
@@ -127,10 +125,10 @@ pub fn get_kicked(
                 speed
             };
             collision_response.velocity.x = speed;
-            commands.entity(beetle).remove::<Kickable>();
+            commands.entity(beetle).remove::<(Kickable, Grabable)>();
             commands
                 .entity(beetle)
-                .insert(KickTimer(Timer::from_seconds(0.2, TimerMode::Once)));
+                .insert(KickTimer(Timer::from_seconds(0.16, TimerMode::Once)));
         }
     }
 }

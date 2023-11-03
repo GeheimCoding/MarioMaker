@@ -20,7 +20,10 @@ impl Plugin for SystemSetPlugin {
             .configure_set(Update, HorizontalMovement.before(HorizontalConfinement))
             .configure_set(Update, VerticalMovementActions.before(VerticalMovement))
             .configure_set(Update, VerticalMovement.before(VerticalConfinement))
-            .configure_set(Update, HorizontalConfinement.before(VerticalMovement))
+            .configure_set(
+                Update,
+                HorizontalConfinement.before(VerticalMovementActions),
+            )
             .configure_set(Update, HorizontalConfinement.before(ChangeDetection))
             .configure_set(Update, VerticalConfinement.before(ChangeDetection));
     }
