@@ -7,6 +7,8 @@ pub struct Camera;
 pub enum Direction {
     Left,
     Right,
+    Up,
+    Down,
 }
 
 #[derive(Component)]

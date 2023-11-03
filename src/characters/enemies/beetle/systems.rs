@@ -74,21 +74,15 @@ pub fn handle_velocity_change(
 
 pub fn die(
     mut commands: Commands,
-    animations: Res<Animations>,
     mut jumped_on_event: EventReader<JumpedOnEvent>,
     mut query: Query<
-        (
-            Entity,
-            &mut Animation,
-            &mut Velocity,
-            &mut CollisionResponse,
-        ),
+        (Entity, &mut State, &mut Velocity, &mut CollisionResponse),
         (With<Beetle>, Without<Grabbed>),
     >,
 ) {
-    for (beetle, mut animation, mut velocity, mut collision_response) in query.iter_mut() {
+    for (beetle, mut state, mut velocity, mut collision_response) in query.iter_mut() {
         if jumped_on_event.iter().any(|event| event.0 == beetle) {
-            *animation = animations.get(&State::IdleDead);
+            *state = State::IdleDead;
             velocity.value.x = 0.0;
             collision_response.velocity = Vec2::ZERO;
             commands.entity(beetle).remove::<(Jumpable, Hurting)>();
@@ -99,33 +93,31 @@ pub fn die(
 
 pub fn get_kicked(
     mut commands: Commands,
-    animations: Res<Animations>,
     mut kicked_event: EventReader<KickedEvent>,
-    mut grabbed_event: EventReader<GrabbedEvent>,
     mut query: Query<
-        (
-            Entity,
-            &mut Animation,
-            &mut Velocity,
-            &mut CollisionResponse,
-        ),
+        (Entity, &mut State, &mut Velocity, &mut CollisionResponse),
         (With<Beetle>, Without<Grabbed>),
     >,
 ) {
     let speed = 200.0;
-    for (beetle, mut animation, mut velocity, mut collision_response) in query.iter_mut() {
+    for (beetle, mut state, mut velocity, mut collision_response) in query.iter_mut() {
         for event in kicked_event.iter() {
-            if event.entity != beetle || grabbed_event.iter().any(|event| event.0 == beetle) {
+            if event.entity != beetle {
                 continue;
             }
-            *animation = animations.get(&State::Rolling);
-            velocity.value.x = if event.direction == Direction::Left {
-                -speed
-            } else {
-                speed
-            };
-            collision_response.velocity.x = speed;
-            commands.entity(beetle).remove::<(Kickable, Grabable)>();
+            match event.direction {
+                Direction::Left | Direction::Right => {
+                    *state = State::Rolling;
+                    velocity.value.x = if event.direction == Direction::Left {
+                        -speed
+                    } else {
+                        speed
+                    };
+                    collision_response.velocity.x = speed;
+                }
+                Direction::Up => velocity.value.y = 400.0,
+                Direction::Down => {}
+            }
             commands
                 .entity(beetle)
                 .insert(KickTimer(Timer::from_seconds(0.16, TimerMode::Once)));
@@ -136,12 +128,16 @@ pub fn get_kicked(
 pub fn reset_jumpable(
     time: Res<Time>,
     mut commands: Commands,
-    mut query: Query<(Entity, &mut KickTimer), (With<Beetle>, Without<Grabbed>)>,
+    mut query: Query<(Entity, &State, &mut KickTimer), (With<Beetle>, Without<Grabbed>)>,
 ) {
-    for (beetle, mut kick_timer) in query.iter_mut() {
+    for (beetle, state, mut kick_timer) in query.iter_mut() {
         if kick_timer.0.tick(time.delta()).just_finished() {
             commands.entity(beetle).remove::<KickTimer>();
-            commands.entity(beetle).insert((Hurting, Jumpable));
+            if state != &State::IdleDead {
+                commands.entity(beetle).insert((Hurting, Jumpable));
+            } else {
+                commands.entity(beetle).insert((Kickable, Grabable));
+            }
         }
     }
 }
@@ -175,5 +171,19 @@ pub fn get_grabbed(
             commands.entity(beetle).insert(Grabbed);
             return;
         }
+    }
+}
+
+pub fn handle_state_change(
+    animations: Res<Animations>,
+    mut query: Query<(&mut Animation, &State), (With<Beetle>, Changed<State>)>,
+    mut last_state: Local<State>,
+) {
+    for (mut animation, &state) in query.iter_mut() {
+        if *last_state == state {
+            return;
+        }
+        *last_state = state;
+        *animation = animations.get(&state);
     }
 }

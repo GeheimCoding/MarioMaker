@@ -135,6 +135,7 @@ pub fn move_camera(
 
 pub fn kick(
     mut kicked_event: EventWriter<KickedEvent>,
+    mut grabbed_event: EventReader<GrabbedEvent>,
     mut player_query: Query<(&Collider, &Transform), With<Player>>,
     mut enemy_query: Query<
         (Entity, &Collider, &Transform),
@@ -143,6 +144,9 @@ pub fn kick(
 ) {
     let (player_collider, player_transform) = player_query.single_mut();
     for (enemy, enemy_collider, enemy_transform) in enemy_query.iter_mut() {
+        if grabbed_event.iter().any(|event| event.0 == enemy) {
+            continue;
+        }
         let player_rect = player_collider.get_rect(&player_transform);
         let enemy_rect = enemy_collider.get_rect(enemy_transform);
 
@@ -213,10 +217,18 @@ pub fn kick_held_item(
         return;
     }
     let item = item_query.single();
-    let &direction = player_query.single();
+    let direction = if keyboard_input.any_pressed(vec![KeyCode::Down, KeyCode::S]) {
+        Direction::Down
+    } else if keyboard_input.any_pressed(vec![KeyCode::Up, KeyCode::W]) {
+        Direction::Up
+    } else {
+        *player_query.single()
+    };
 
     if keyboard_input.just_released(KeyCode::ShiftLeft) {
-        commands.entity(item).remove::<Grabbed>();
+        commands
+            .entity(item)
+            .remove::<(Grabbed, Grabable, Kickable)>();
         kicked_event.send(KickedEvent {
             entity: item,
             direction,
