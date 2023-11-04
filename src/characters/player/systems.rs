@@ -136,13 +136,13 @@ pub fn move_camera(
 pub fn kick(
     mut kicked_event: EventWriter<KickedEvent>,
     mut grabbed_event: EventReader<GrabbedEvent>,
-    mut player_query: Query<(&Collider, &Transform), With<Player>>,
+    mut player_query: Query<(&Collider, &Transform, &Velocity), With<Player>>,
     mut enemy_query: Query<
         (Entity, &Collider, &Transform),
         (With<Kickable>, Without<Player>, Without<Grabbed>),
     >,
 ) {
-    let (player_collider, player_transform) = player_query.single_mut();
+    let (player_collider, player_transform, velocity) = player_query.single_mut();
     for (enemy, enemy_collider, enemy_transform) in enemy_query.iter_mut() {
         if grabbed_event.iter().any(|event| event.0 == enemy) {
             continue;
@@ -159,6 +159,7 @@ pub fn kick(
             kicked_event.send(KickedEvent {
                 entity: enemy,
                 direction,
+                velocity: velocity.value,
             });
         }
     }
@@ -210,19 +211,20 @@ pub fn kick_held_item(
     mut commands: Commands,
     keyboard_input: Res<Input<KeyCode>>,
     mut kicked_event: EventWriter<KickedEvent>,
-    player_query: Query<&Direction, With<Player>>,
+    player_query: Query<(&Direction, &Velocity), With<Player>>,
     item_query: Query<Entity, With<Grabbed>>,
 ) {
     if item_query.is_empty() {
         return;
     }
+    let (direction, velocity) = player_query.single();
     let item = item_query.single();
     let direction = if keyboard_input.any_pressed(vec![KeyCode::Down, KeyCode::S]) {
         Direction::Down
     } else if keyboard_input.any_pressed(vec![KeyCode::Up, KeyCode::W]) {
         Direction::Up
     } else {
-        *player_query.single()
+        *direction
     };
 
     if keyboard_input.just_released(KeyCode::ShiftLeft) {
@@ -232,6 +234,7 @@ pub fn kick_held_item(
         kicked_event.send(KickedEvent {
             entity: item,
             direction,
+            velocity: velocity.value,
         });
     }
 }

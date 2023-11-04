@@ -11,6 +11,7 @@ pub struct JumpedOnEvent(pub Entity);
 pub struct KickedEvent {
     pub entity: Entity,
     pub direction: Direction,
+    pub velocity: Vec2,
 }
 
 #[derive(Event)]

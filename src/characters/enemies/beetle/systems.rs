@@ -3,7 +3,7 @@ use crate::characters::components::{
 };
 use crate::characters::enemies::beetle::components::{Beetle, KickTimer, State};
 use crate::characters::enemies::beetle::resources::{Animations, Texture};
-use crate::characters::events::{GrabbedEvent, JumpedOnEvent, KickedEvent};
+use crate::characters::events::{GrabbedEvent, GroundedEvent, JumpedOnEvent, KickedEvent};
 use crate::components::{Animation, Collider, Direction, Gravity, Velocity};
 use crate::content_manager::{TextureData, Textures};
 use bevy::prelude::*;
@@ -105,6 +105,7 @@ pub fn get_kicked(
             if event.entity != beetle {
                 continue;
             }
+            info!("{:?}", state);
             match event.direction {
                 Direction::Left | Direction::Right => {
                     *state = State::Rolling;
@@ -115,9 +116,13 @@ pub fn get_kicked(
                     };
                     collision_response.velocity.x = speed;
                 }
-                Direction::Up => velocity.value.y = 400.0,
+                Direction::Up => {
+                    velocity.value.y = 400.0;
+                    velocity.value.x = event.velocity.x;
+                }
                 Direction::Down => {}
             }
+            commands.entity(beetle).remove::<Kickable>();
             commands
                 .entity(beetle)
                 .insert(KickTimer(Timer::from_seconds(0.16, TimerMode::Once)));
@@ -185,5 +190,16 @@ pub fn handle_state_change(
         }
         *last_state = state;
         *animation = animations.get(&state);
+    }
+}
+
+pub fn handle_grounded_event(
+    mut grounded_event: EventReader<GroundedEvent>,
+    mut query: Query<(Entity, &State, &mut Velocity), With<Beetle>>,
+) {
+    for (beetle, state, mut velocity) in query.iter_mut() {
+        if *state == State::IdleDead && grounded_event.iter().any(|event| event.0 == beetle) {
+            velocity.value.x = 0.0;
+        }
     }
 }

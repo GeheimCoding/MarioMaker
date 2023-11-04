@@ -14,7 +14,7 @@ impl Plugin for BeetlePlugin {
         app.init_resource::<Animations>()
             .add_systems(PreStartup, init)
             .add_systems(Startup, spawn)
-            .add_systems(Update, reset_jumpable)
+            .add_systems(Update, (reset_jumpable, handle_grounded_event))
             .add_systems(
                 Update,
                 (
