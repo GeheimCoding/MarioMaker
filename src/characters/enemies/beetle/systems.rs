@@ -105,7 +105,6 @@ pub fn get_kicked(
             if event.entity != beetle {
                 continue;
             }
-            info!("{:?}", state);
             match event.direction {
                 Direction::Left | Direction::Right => {
                     *state = State::Rolling;

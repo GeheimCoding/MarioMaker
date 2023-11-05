@@ -129,12 +129,12 @@ pub fn crouch(
     if *state != State::Grouching && down_pressed {
         *state = State::Grouching;
         player_collider.size.y = 14.0;
-        player_collider.offset.y = -4.0;
+        player_collider.offset.y = -9.0;
     } else if *state == State::Grouching && !down_pressed {
         let mut colliding = false;
         let mut updated_player_collider = *player_collider;
         updated_player_collider.size.y = 20.0;
-        updated_player_collider.offset.y = -1.0;
+        updated_player_collider.offset.y = -6.0;
 
         for (block_collider, block_transform) in block_query.iter() {
             let player_rect = updated_player_collider.get_rect(&player_transform);

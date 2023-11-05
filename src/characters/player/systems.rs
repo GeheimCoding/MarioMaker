@@ -23,9 +23,9 @@ pub fn init(
         vec![TextureData {
             texture: Texture::Mario,
             path: "textures/mario.png".to_owned(),
-            tile_size: Vec2::new(16.0, 24.0),
-            columns: 6,
-            rows: 1,
+            tile_size: Vec2::new(32.0, 32.0),
+            columns: 8,
+            rows: 2,
         }],
     );
 }
@@ -43,7 +43,7 @@ pub fn spawn(
         },
         Collider {
             size: Vec2::new(14.0, 20.0),
-            offset: Vec2::new(0.0, -1.0),
+            offset: Vec2::new(0.0, -6.0),
         },
         Velocity::with_max(Vec2::new(160.0, 400.0)),
         Acceleration(400.0),
