@@ -144,7 +144,7 @@ pub fn kick(
 ) {
     let (player_collider, player_transform, velocity) = player_query.single_mut();
     for (enemy, enemy_collider, enemy_transform) in enemy_query.iter_mut() {
-        if grabbed_event.iter().any(|event| event.0 == enemy) {
+        if grabbed_event.read().any(|event| event.0 == enemy) {
             continue;
         }
         let player_rect = player_collider.get_rect(&player_transform);

@@ -18,7 +18,7 @@ pub fn run(
 ) {
     let (player, mut player_direction, mut player_velocity, acceleration, state) =
         query.single_mut();
-    let grounded = grounded_event.iter().any(|event| event.0 == player);
+    let grounded = grounded_event.read().any(|event| event.0 == player);
     let crouching = *state == State::Grouching;
     let direction = get_horizontal_direction(keyboard_input);
     let is_moving = direction != 0.0 && !(crouching && grounded);
@@ -111,7 +111,7 @@ pub fn coyote_jump(
 }
 
 pub fn reset_coyote_jump(mut commands: Commands, mut removed: RemovedComponents<Airborne>) {
-    for entity in removed.iter() {
+    for entity in removed.read() {
         commands
             .entity(entity)
             .insert(CoyoteJump(Timer::from_seconds(0.08, TimerMode::Once)));
@@ -158,7 +158,7 @@ pub fn gaze(
     mut query: Query<(Entity, &mut State, &Velocity), With<Player>>,
 ) {
     let (player, mut state, velocity) = query.single_mut();
-    let grounded = grounded_event.iter().any(|event| event.0 == player);
+    let grounded = grounded_event.read().any(|event| event.0 == player);
 
     if velocity.value.x == 0.0 && grounded {
         if keyboard_input.any_pressed(vec![KeyCode::W, KeyCode::Up]) {

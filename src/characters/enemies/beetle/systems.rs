@@ -81,7 +81,7 @@ pub fn die(
     >,
 ) {
     for (beetle, mut state, mut velocity, mut collision_response) in query.iter_mut() {
-        if jumped_on_event.iter().any(|event| event.0 == beetle) {
+        if jumped_on_event.read().any(|event| event.0 == beetle) {
             *state = State::IdleDead;
             velocity.value.x = 0.0;
             collision_response.velocity = Vec2::ZERO;
@@ -101,7 +101,7 @@ pub fn get_kicked(
 ) {
     let speed = 200.0;
     for (beetle, mut state, mut velocity, mut collision_response) in query.iter_mut() {
-        for event in kicked_event.iter() {
+        for event in kicked_event.read() {
             if event.entity != beetle {
                 continue;
             }
@@ -165,7 +165,7 @@ pub fn get_grabbed(
         return;
     }
     for (beetle, mut animation, mut velocity, mut collision_response) in query.iter_mut() {
-        for event in grabbed_event.iter() {
+        for event in grabbed_event.read() {
             if event.0 != beetle {
                 continue;
             }
@@ -197,7 +197,7 @@ pub fn handle_grounded_event(
     mut query: Query<(Entity, &State, &mut Velocity), With<Beetle>>,
 ) {
     for (beetle, state, mut velocity) in query.iter_mut() {
-        if *state == State::IdleDead && grounded_event.iter().any(|event| event.0 == beetle) {
+        if *state == State::IdleDead && grounded_event.read().any(|event| event.0 == beetle) {
             velocity.value.x = 0.0;
         }
     }

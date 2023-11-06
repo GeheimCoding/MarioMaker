@@ -28,7 +28,7 @@ fn main() {
                     ..default()
                 })
                 .set(AssetPlugin {
-                    asset_folder: "content".to_owned(),
+                    file_path: "content".to_owned(),
                     ..default()
                 })
                 .set(ImagePlugin::default_nearest()),
