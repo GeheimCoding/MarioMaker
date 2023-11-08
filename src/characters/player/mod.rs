@@ -25,7 +25,8 @@ impl Plugin for PlayerPlugin {
             .add_systems(
                 Update,
                 (
-                    handle_velocity_change,
+                    handle_velocity_change.before(handle_grabbed_sprite_variants),
+                    handle_grabbed_sprite_variants.before(handle_state_change),
                     handle_state_change,
                     move_camera,
                     hold_item,

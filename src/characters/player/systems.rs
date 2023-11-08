@@ -80,7 +80,7 @@ pub fn handle_velocity_change(
             coyote_jump.0.reset();
         }
     }
-    if *state == State::Grouching {
+    if state.is_crouching() {
         return;
     }
     if airborne.is_some() {
@@ -236,5 +236,19 @@ pub fn kick_held_item(
             direction,
             velocity: velocity.value,
         });
+    }
+}
+
+pub fn handle_grabbed_sprite_variants(
+    grabbed_query: Query<(), With<Grabbed>>,
+    mut query: Query<&mut State, With<Player>>,
+) {
+    let mut state = query.single_mut();
+    let grabbed = !grabbed_query.is_empty();
+
+    if grabbed {
+        *state = state.get_grabbed_variant();
+    } else {
+        *state = state.get_variant_without_grab();
     }
 }

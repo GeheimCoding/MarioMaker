@@ -19,7 +19,7 @@ pub fn run(
     let (player, mut player_direction, mut player_velocity, acceleration, state) =
         query.single_mut();
     let grounded = grounded_event.read().any(|event| event.0 == player);
-    let crouching = *state == State::Grouching;
+    let crouching = state.is_crouching();
     let direction = get_horizontal_direction(keyboard_input);
     let is_moving = direction != 0.0 && !(crouching && grounded);
     let max_velocity = player_velocity.max.x;
@@ -126,11 +126,11 @@ pub fn crouch(
     let (mut player_collider, mut state, player_transform) = player_query.single_mut();
     let down_pressed = keyboard_input.any_pressed(vec![S, Down]);
 
-    if *state != State::Grouching && down_pressed {
+    if !state.is_crouching() && down_pressed {
         *state = State::Grouching;
         player_collider.size.y = 14.0;
         player_collider.offset.y = -9.0;
-    } else if *state == State::Grouching && !down_pressed {
+    } else if state.is_crouching() && !down_pressed {
         let mut colliding = false;
         let mut updated_player_collider = *player_collider;
         updated_player_collider.size.y = 20.0;
