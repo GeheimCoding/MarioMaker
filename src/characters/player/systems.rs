@@ -1,6 +1,6 @@
 use crate::characters::components::{Character, CollisionResponse, Grabable, Grabbed, Kickable};
 use crate::characters::events::{GrabbedEvent, KickedEvent};
-use crate::characters::player::components::{Player, State};
+use crate::characters::player::components::{KickTimer, Player, State};
 use crate::characters::player::movement::components::{Acceleration, Airborne, CoyoteJump};
 use crate::characters::player::resources::{Animations, Texture};
 use crate::characters::systems::is_colliding;
@@ -67,6 +67,7 @@ pub fn handle_velocity_change(
             &Velocity,
             Option<&Airborne>,
             Option<&mut CoyoteJump>,
+            Option<&mut KickTimer>,
         ),
         (With<Player>, Changed<Velocity>),
     >,
@@ -74,13 +75,13 @@ pub fn handle_velocity_change(
     if query.is_empty() {
         return;
     }
-    let (mut state, velocity, airborne, coyote_jump) = query.single_mut();
+    let (mut state, velocity, airborne, coyote_jump, kick_timer) = query.single_mut();
     if velocity.value.y == 0.0 {
         if let Some(mut coyote_jump) = coyote_jump {
             coyote_jump.0.reset();
         }
     }
-    if state.is_crouching() {
+    if state.is_crouching() || kick_timer.is_some() {
         return;
     }
     if airborne.is_some() {
@@ -250,5 +251,34 @@ pub fn handle_grabbed_sprite_variants(
         *state = state.get_grabbed_variant();
     } else {
         *state = state.get_variant_without_grab();
+    }
+}
+
+pub fn handle_kicked_event(
+    mut commands: Commands,
+    kicked_event: EventReader<KickedEvent>,
+    mut query: Query<(Entity, &mut State), With<Player>>,
+) {
+    if kicked_event.is_empty() {
+        return;
+    }
+    let (player, mut state) = query.single_mut();
+    *state = State::Kicking;
+    commands
+        .entity(player)
+        .insert(KickTimer(Timer::from_seconds(0.16, TimerMode::Once)));
+}
+
+pub fn remove_kick_timer(
+    time: Res<Time>,
+    mut commands: Commands,
+    mut query: Query<(Entity, &mut KickTimer), (With<Player>, With<KickTimer>)>,
+) {
+    if query.is_empty() {
+        return;
+    }
+    let (player, mut kick_timer) = query.single_mut();
+    if kick_timer.0.tick(time.delta()).just_finished() {
+        commands.entity(player).remove::<KickTimer>();
     }
 }

@@ -18,6 +18,7 @@ pub enum State {
     GazingWithGrab,
     Grouching,
     GrouchingWithGrab,
+    Kicking,
 }
 
 impl State {
@@ -49,3 +50,6 @@ impl State {
         }
     }
 }
+
+#[derive(Component)]
+pub struct KickTimer(pub Timer);

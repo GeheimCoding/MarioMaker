@@ -1,6 +1,6 @@
 use crate::characters::components::{Grabbed, Hurting, Jumpable};
 use crate::characters::events::{GroundedEvent, JumpedOnEvent};
-use crate::characters::player::components::{Player, State};
+use crate::characters::player::components::{KickTimer, Player, State};
 use crate::characters::player::movement::components::{
     Acceleration, Airborne, CoyoteJump, JumpBuffer, JumpTimer,
 };
@@ -155,12 +155,12 @@ pub fn crouch(
 pub fn gaze(
     keyboard_input: Res<Input<KeyCode>>,
     mut grounded_event: EventReader<GroundedEvent>,
-    mut query: Query<(Entity, &mut State, &Velocity), With<Player>>,
+    mut query: Query<(Entity, &mut State, &Velocity, Option<&KickTimer>), With<Player>>,
 ) {
-    let (player, mut state, velocity) = query.single_mut();
+    let (player, mut state, velocity, kick_timer) = query.single_mut();
     let grounded = grounded_event.read().any(|event| event.0 == player);
 
-    if velocity.value.x == 0.0 && grounded {
+    if velocity.value.x == 0.0 && grounded && kick_timer.is_none() {
         if keyboard_input.any_pressed(vec![KeyCode::W, KeyCode::Up]) {
             *state = State::Gazing;
         } else if *state == State::Gazing {

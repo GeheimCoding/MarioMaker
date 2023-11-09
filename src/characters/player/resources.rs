@@ -32,6 +32,7 @@ impl Default for Animations {
             (State::GazingWithGrab, Animation::once(9)),
             (State::Grouching, Animation::once(2)),
             (State::GrouchingWithGrab, Animation::once(10)),
+            (State::Kicking, Animation::once(12)),
         ]);
         Self(animations)
     }

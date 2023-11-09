@@ -30,6 +30,8 @@ impl Plugin for PlayerPlugin {
                     handle_state_change,
                     move_camera,
                     hold_item,
+                    handle_kicked_event,
+                    remove_kick_timer,
                 )
                     .in_set(ChangeDetection),
             );
