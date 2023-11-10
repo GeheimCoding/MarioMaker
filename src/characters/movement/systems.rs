@@ -2,7 +2,7 @@ use crate::characters::components::{Character, CollisionResponse};
 use crate::characters::events::GroundedEvent;
 use crate::characters::player::movement::components::{Airborne, JumpTimer};
 use crate::characters::systems::is_colliding;
-use crate::components::{Collider, Velocity};
+use crate::components::{Collider, MainCamera, Velocity};
 use crate::world::components::Block;
 use bevy::prelude::*;
 
@@ -114,7 +114,10 @@ pub fn confine_in_window(
         ),
         With<Character>,
     >,
-    camera_query: Query<(&OrthographicProjection, &Transform), (With<Camera>, Without<Character>)>,
+    camera_query: Query<
+        (&OrthographicProjection, &Transform),
+        (With<MainCamera>, Without<Character>),
+    >,
 ) {
     for (character, collider, collision_response, mut character_transform, mut velocity) in
         character_query.iter_mut()

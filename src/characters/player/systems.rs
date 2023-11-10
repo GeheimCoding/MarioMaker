@@ -5,7 +5,7 @@ use crate::characters::player::movement::components::{Acceleration, Airborne, Co
 use crate::characters::player::resources::{Animations, Texture};
 use crate::characters::systems::is_colliding;
 use crate::components::{
-    Animation, Collider, Direction, Gravity, Velocity, MIN_ANIMATION_DURATION,
+    Animation, Collider, Direction, Gravity, MainCamera, Velocity, MIN_ANIMATION_DURATION,
 };
 use crate::content_manager::{TextureData, Textures};
 use crate::world::components::TILE_SIZE;
@@ -121,8 +121,8 @@ pub fn handle_state_change(
 }
 
 pub fn move_camera(
-    player_query: Query<&Transform, (With<Player>, Without<Camera>)>,
-    mut camera_query: Query<&mut Transform, With<Camera>>,
+    player_query: Query<&Transform, (With<Player>, Without<MainCamera>)>,
+    mut camera_query: Query<&mut Transform, With<MainCamera>>,
 ) {
     let player_transform = player_query.single();
     let mut camera_transform = camera_query.single_mut();

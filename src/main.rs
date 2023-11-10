@@ -36,7 +36,7 @@ fn main() {
             CharacterPlugin,
             SystemSetPlugin,
         ))
-        .add_systems(Startup, setup_camera)
+        .add_systems(Startup, setup_cameras)
         .add_systems(
             Update,
             (animate, apply_gravity, update_mouse_position, close_on_esc),

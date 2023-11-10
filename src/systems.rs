@@ -1,13 +1,16 @@
 use crate::characters::components::Grabbed;
 use crate::characters::player::movement::components::JumpTimer;
-use crate::components::{Animation, Camera, Direction, Gravity, Velocity};
+use crate::components::{Animation, Direction, Gravity, MainCamera, UiCamera, Velocity, UI_LAYER};
 use crate::resources::MousePosition;
+use bevy::core_pipeline::clear_color::ClearColorConfig;
 use bevy::prelude::*;
+use bevy::render::view::RenderLayers;
 use bevy::window::PrimaryWindow;
 
-pub fn setup_camera(mut commands: Commands) {
+pub fn setup_cameras(mut commands: Commands) {
     commands.spawn((
-        Camera,
+        MainCamera,
+        UiCameraConfig { show_ui: false },
         Camera2dBundle {
             projection: OrthographicProjection {
                 scale: 0.25,
@@ -15,6 +18,20 @@ pub fn setup_camera(mut commands: Commands) {
             },
             ..default()
         },
+    ));
+    commands.spawn((
+        UiCamera,
+        Camera2dBundle {
+            camera_2d: Camera2d {
+                clear_color: ClearColorConfig::None,
+            },
+            camera: Camera {
+                order: 1,
+                ..default()
+            },
+            ..default()
+        },
+        RenderLayers::layer(UI_LAYER),
     ));
 }
 
@@ -49,7 +66,7 @@ pub fn apply_gravity(
 pub fn update_mouse_position(
     mut mouse_position: ResMut<MousePosition>,
     window_query: Query<&Window, With<PrimaryWindow>>,
-    camera_query: Query<(&bevy::render::camera::Camera, &GlobalTransform), With<Camera>>,
+    camera_query: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
 ) {
     let window = window_query.single();
     let (camera, camera_transform) = camera_query.single();

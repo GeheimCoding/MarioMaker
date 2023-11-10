@@ -1,7 +1,13 @@
 use bevy::prelude::*;
+use bevy::render::view::Layer;
 
 #[derive(Component)]
-pub struct Camera;
+pub struct MainCamera;
+
+#[derive(Component)]
+pub struct UiCamera;
+
+pub const UI_LAYER: Layer = 1;
 
 #[derive(Clone, Component, Copy, PartialEq)]
 pub enum Direction {
