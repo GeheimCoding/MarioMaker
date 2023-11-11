@@ -2,6 +2,7 @@ use crate::characters::CharacterPlugin;
 use crate::resources::MousePosition;
 use crate::system_sets::SystemSetPlugin;
 use crate::systems::*;
+use crate::ui::UiPlugin;
 use crate::world::WorldPlugin;
 use bevy::prelude::*;
 use bevy::window::close_on_esc;
@@ -12,6 +13,7 @@ mod content_manager;
 mod resources;
 mod system_sets;
 mod systems;
+mod ui;
 mod world;
 
 fn main() {
@@ -35,6 +37,7 @@ fn main() {
             WorldPlugin,
             CharacterPlugin,
             SystemSetPlugin,
+            UiPlugin,
         ))
         .add_systems(Startup, setup_cameras)
         .add_systems(
