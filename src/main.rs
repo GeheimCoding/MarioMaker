@@ -39,10 +39,17 @@ fn main() {
             SystemSetPlugin,
             UiPlugin,
         ))
-        .add_systems(Startup, setup_cameras)
+        .add_systems(Startup, (setup_cameras, spawn_cursor))
         .add_systems(
             Update,
-            (animate, apply_gravity, update_mouse_position, close_on_esc),
+            (
+                animate,
+                apply_gravity,
+                update_mouse_position,
+                close_on_esc,
+                move_cursor,
+                update_cursor_sprite,
+            ),
         )
         .run();
 }

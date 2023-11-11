@@ -4,6 +4,7 @@ use bevy::prelude::*;
 pub fn spawn_level_timer(mut commands: Commands, asset_server: ResMut<AssetServer>) {
     let time = 500.0;
     commands.spawn((
+        LevelTimerText,
         TextBundle::from_section(
             (time as u32).to_string(),
             TextStyle {
@@ -18,12 +19,11 @@ pub fn spawn_level_timer(mut commands: Commands, asset_server: ResMut<AssetServe
             top: Val::Px(5.0),
             ..default()
         }),
-        LevelTimerText,
     ));
     commands.spawn(LevelTimer(Timer::from_seconds(time + 1.0, TimerMode::Once)));
 }
 
-pub fn vertical_movement(
+pub fn update_level_timer(
     time: Res<Time>,
     mut query: Query<&mut LevelTimer>,
     mut text_query: Query<&mut Text, With<LevelTimerText>>,

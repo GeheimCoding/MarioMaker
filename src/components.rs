@@ -95,3 +95,6 @@ impl Collider {
         }
     }
 }
+
+#[derive(Component)]
+pub struct Cursor;
