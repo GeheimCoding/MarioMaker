@@ -1,5 +1,5 @@
 use crate::characters::CharacterPlugin;
-use crate::resources::MousePosition;
+use crate::resources::{AppState, MousePosition};
 use crate::system_sets::SystemSetPlugin;
 use crate::systems::*;
 use crate::ui::UiPlugin;
@@ -18,6 +18,7 @@ mod world;
 
 fn main() {
     App::new()
+        .add_state::<AppState>()
         .init_resource::<MousePosition>()
         .insert_resource(ClearColor(Color::CYAN))
         .add_plugins((
