@@ -1,11 +1,11 @@
-use crate::characters::components::{
-    Character, CollisionResponse, Grabable, Grabbed, Hurting, Jumpable, Kickable,
-};
-use crate::characters::enemies::beetle::components::{Beetle, KickTimer, State};
-use crate::characters::enemies::beetle::resources::{Animations, Texture};
-use crate::characters::events::{GrabbedEvent, GroundedEvent, JumpedOnEvent, KickedEvent};
 use crate::components::{Animation, Collider, Direction, Gravity, Velocity};
 use crate::content_manager::{TextureData, Textures};
+use crate::level::characters::components::{
+    Character, CollisionResponse, Grabable, Grabbed, Hurting, Jumpable, Kickable,
+};
+use crate::level::characters::enemies::beetle::components::{Beetle, KickTimer, State};
+use crate::level::characters::enemies::beetle::resources::{Animations, Texture};
+use crate::level::characters::events::{GrabbedEvent, GroundedEvent, JumpedOnEvent, KickedEvent};
 use bevy::prelude::*;
 
 pub fn init(

@@ -1,6 +1,6 @@
-use crate::characters::player::movement::MovementPlugin;
-use crate::characters::player::resources::Animations;
-use crate::characters::player::systems::*;
+use crate::level::characters::player::movement::MovementPlugin;
+use crate::level::characters::player::resources::Animations;
+use crate::level::characters::player::systems::*;
 use bevy::prelude::*;
 
 pub mod components;

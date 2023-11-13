@@ -1,4 +1,4 @@
-use crate::characters::movement::systems::*;
+use crate::level::characters::movement::systems::*;
 use bevy::prelude::*;
 mod systems;
 

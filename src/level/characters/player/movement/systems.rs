@@ -1,11 +1,11 @@
-use crate::characters::components::{Grabbed, Hurting, Jumpable};
-use crate::characters::events::{GroundedEvent, JumpedOnEvent};
-use crate::characters::player::components::{KickTimer, Player, State};
-use crate::characters::player::movement::components::{
+use crate::components::{Collider, Direction, Velocity};
+use crate::level::characters::components::{Grabbed, Hurting, Jumpable};
+use crate::level::characters::events::{GroundedEvent, JumpedOnEvent};
+use crate::level::characters::player::components::{KickTimer, Player, State};
+use crate::level::characters::player::movement::components::{
     Acceleration, Airborne, CoyoteJump, JumpBuffer, JumpTimer,
 };
-use crate::characters::systems::is_colliding;
-use crate::components::{Collider, Direction, Velocity};
+use crate::level::characters::systems::is_colliding;
 use crate::world::components::Block;
 use bevy::prelude::KeyCode::{Down, S};
 use bevy::prelude::*;

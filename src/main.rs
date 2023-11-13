@@ -1,19 +1,19 @@
-use crate::characters::CharacterPlugin;
+use crate::editor::EditorPlugin;
+use crate::level::LevelPlugin;
 use crate::resources::{AppState, MousePosition};
 use crate::system_sets::SystemSetPlugin;
 use crate::systems::*;
-use crate::ui::UiPlugin;
 use crate::world::WorldPlugin;
 use bevy::prelude::*;
 use bevy::window::close_on_esc;
 
-mod characters;
 mod components;
 mod content_manager;
+mod editor;
+mod level;
 mod resources;
 mod system_sets;
 mod systems;
-mod ui;
 mod world;
 
 fn main() {
@@ -36,9 +36,9 @@ fn main() {
                 })
                 .set(ImagePlugin::default_nearest()),
             WorldPlugin,
-            CharacterPlugin,
+            LevelPlugin,
             SystemSetPlugin,
-            UiPlugin,
+            EditorPlugin,
         ))
         .add_systems(Startup, (setup_cameras, spawn_cursor))
         .add_systems(

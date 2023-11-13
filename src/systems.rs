@@ -1,8 +1,8 @@
-use crate::characters::components::Grabbed;
-use crate::characters::player::movement::components::JumpTimer;
 use crate::components::{
     Animation, Cursor, Direction, Gravity, MainCamera, UiCamera, Velocity, UI_LAYER,
 };
+use crate::level::characters::components::Grabbed;
+use crate::level::characters::player::movement::components::JumpTimer;
 use crate::resources::MousePosition;
 use bevy::core_pipeline::clear_color::ClearColorConfig;
 use bevy::prelude::*;

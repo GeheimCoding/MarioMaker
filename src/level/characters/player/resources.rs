@@ -1,6 +1,6 @@
-use crate::characters::player::components::State;
 use crate::components::Animation;
 use crate::content_manager::TextureResource;
+use crate::level::characters::player::components::State;
 use bevy::prelude::*;
 use bevy::utils::HashMap;
 

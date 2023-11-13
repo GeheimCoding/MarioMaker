@@ -1,4 +1,4 @@
-use crate::characters::player::movement::systems::*;
+use crate::level::characters::player::movement::systems::*;
 use bevy::prelude::*;
 
 pub mod components;

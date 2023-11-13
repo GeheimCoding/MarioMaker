@@ -1,4 +1,4 @@
-use crate::ui::components::{LevelTimer, LevelTimerText};
+use crate::editor::ui::components::{LevelTimer, LevelTimerText};
 use bevy::prelude::*;
 
 pub fn spawn_level_timer(mut commands: Commands, asset_server: ResMut<AssetServer>) {

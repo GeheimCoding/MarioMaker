@@ -1,13 +1,15 @@
-use crate::characters::components::{Character, CollisionResponse, Grabable, Grabbed, Kickable};
-use crate::characters::events::{GrabbedEvent, KickedEvent};
-use crate::characters::player::components::{KickTimer, Player, State};
-use crate::characters::player::movement::components::{Acceleration, Airborne, CoyoteJump};
-use crate::characters::player::resources::{Animations, Texture};
-use crate::characters::systems::is_colliding;
 use crate::components::{
     Animation, Collider, Direction, Gravity, MainCamera, Velocity, MIN_ANIMATION_DURATION,
 };
 use crate::content_manager::{TextureData, Textures};
+use crate::level::characters::components::{
+    Character, CollisionResponse, Grabable, Grabbed, Kickable,
+};
+use crate::level::characters::events::{GrabbedEvent, KickedEvent};
+use crate::level::characters::player::components::{KickTimer, Player, State};
+use crate::level::characters::player::movement::components::{Acceleration, Airborne, CoyoteJump};
+use crate::level::characters::player::resources::{Animations, Texture};
+use crate::level::characters::systems::is_colliding;
 use crate::world::components::TILE_SIZE;
 use bevy::prelude::*;
 

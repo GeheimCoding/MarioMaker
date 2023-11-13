@@ -1,7 +1,7 @@
-use crate::characters::enemies::EnemyPlugin;
-use crate::characters::events::{GrabbedEvent, GroundedEvent, JumpedOnEvent, KickedEvent};
-use crate::characters::movement::MovementPlugin;
-use crate::characters::player::PlayerPlugin;
+use crate::level::characters::enemies::EnemyPlugin;
+use crate::level::characters::events::{GrabbedEvent, GroundedEvent, JumpedOnEvent, KickedEvent};
+use crate::level::characters::movement::MovementPlugin;
+use crate::level::characters::player::PlayerPlugin;
 use bevy::prelude::*;
 
 pub mod components;
