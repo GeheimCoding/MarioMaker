@@ -9,10 +9,7 @@ pub struct UiPlugin;
 
 impl Plugin for UiPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(AppState::Editor), spawn_level_timer)
-            .add_systems(
-                Update,
-                update_level_timer.run_if(in_state(AppState::Editor)),
-            );
+        app.add_systems(OnEnter(AppState::Level), spawn_level_timer)
+            .add_systems(Update, update_level_timer.run_if(in_state(AppState::Level)));
     }
 }

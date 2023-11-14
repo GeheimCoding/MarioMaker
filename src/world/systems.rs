@@ -31,7 +31,21 @@ pub fn spawn(mut commands: Commands, mut tiles: ResMut<Tiles>, textures: Res<Tex
     }
     spawn_block(&mut commands, &mut tiles, texture_handle.clone(), 10, -3);
     spawn_block(&mut commands, &mut tiles, texture_handle.clone(), -8, -3);
-    spawn_preview_block(&mut commands, texture_handle.clone());
+}
+
+pub fn spawn_preview_block(mut commands: Commands, textures: Res<Textures<Texture>>) {
+    commands.spawn((
+        PreviewBlock,
+        SpriteSheetBundle {
+            sprite: TextureAtlasSprite {
+                color: Color::rgba(1.0, 1.0, 1.0, 0.5),
+                ..default()
+            },
+            transform: Transform::from_translation(Vec3::new(0.0, -200.0, 0.0)),
+            texture_atlas: textures.get(&Texture::Block),
+            ..default()
+        },
+    ));
 }
 
 pub fn move_preview_block(
@@ -96,21 +110,6 @@ fn spawn_block(
         },
     ));
     tiles.insert((x, y), entity.id());
-}
-
-fn spawn_preview_block(commands: &mut Commands, texture_atlas: Handle<TextureAtlas>) {
-    commands.spawn((
-        PreviewBlock,
-        SpriteSheetBundle {
-            sprite: TextureAtlasSprite {
-                color: Color::rgba(1.0, 1.0, 1.0, 0.5),
-                ..default()
-            },
-            transform: Transform::from_translation(Vec3::new(0.0, -200.0, 0.0)),
-            texture_atlas,
-            ..default()
-        },
-    ));
 }
 
 fn position_to_translation(position: Vec2) -> Vec3 {

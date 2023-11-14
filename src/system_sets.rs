@@ -1,3 +1,4 @@
+use crate::resources::AppState;
 use bevy::prelude::*;
 
 pub struct SystemSetPlugin;
@@ -25,6 +26,19 @@ impl Plugin for SystemSetPlugin {
                 HorizontalConfinement.before(VerticalMovementActions),
             )
             .configure_sets(Update, HorizontalConfinement.before(ChangeDetection))
-            .configure_sets(Update, VerticalConfinement.before(ChangeDetection));
+            .configure_sets(Update, VerticalConfinement.before(ChangeDetection))
+            .configure_sets(
+                Update,
+                (
+                    HorizontalMovementActions,
+                    HorizontalMovement,
+                    VerticalMovementActions,
+                    VerticalMovement,
+                    HorizontalConfinement,
+                    VerticalConfinement,
+                    ChangeDetection,
+                )
+                    .run_if(in_state(AppState::Level)),
+            );
     }
 }

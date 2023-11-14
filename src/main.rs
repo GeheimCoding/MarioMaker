@@ -40,16 +40,17 @@ fn main() {
             SystemSetPlugin,
             EditorPlugin,
         ))
-        .add_systems(Startup, (setup_cameras, spawn_cursor))
+        .add_systems(Startup, setup_cameras)
+        .add_systems(OnEnter(AppState::Editor), spawn_cursor)
         .add_systems(
             Update,
             (
                 animate,
-                apply_gravity,
+                apply_gravity.run_if(in_state(AppState::Level)),
                 update_mouse_position,
                 close_on_esc,
-                move_cursor,
-                update_cursor_sprite,
+                move_cursor.run_if(in_state(AppState::Editor)),
+                update_cursor_sprite.run_if(in_state(AppState::Editor)),
             ),
         )
         .run();

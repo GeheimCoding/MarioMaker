@@ -1,6 +1,7 @@
 use crate::level::characters::player::movement::MovementPlugin;
 use crate::level::characters::player::resources::Animations;
 use crate::level::characters::player::systems::*;
+use crate::resources::AppState;
 use bevy::prelude::*;
 
 pub mod components;
@@ -16,8 +17,8 @@ impl Plugin for PlayerPlugin {
 
         app.init_resource::<Animations>()
             .add_plugins(MovementPlugin)
-            .add_systems(PreStartup, init)
-            .add_systems(Startup, spawn)
+            .add_systems(Startup, init)
+            .add_systems(OnEnter(AppState::Level), spawn)
             .add_systems(
                 Update,
                 (grab, kick, kick_held_item).in_set(HorizontalMovementActions),

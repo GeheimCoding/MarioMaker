@@ -1,5 +1,6 @@
 use crate::level::characters::enemies::beetle::resources::Animations;
 use crate::level::characters::enemies::beetle::systems::*;
+use crate::resources::AppState;
 use bevy::prelude::*;
 
 mod components;
@@ -12,8 +13,8 @@ impl Plugin for BeetlePlugin {
     fn build(&self, app: &mut App) {
         use crate::system_sets::UpdateSet::*;
         app.init_resource::<Animations>()
-            .add_systems(PreStartup, init)
-            .add_systems(Startup, spawn)
+            .add_systems(Startup, init)
+            .add_systems(OnEnter(AppState::Level), spawn)
             .add_systems(Update, (reset_jumpable, handle_grounded_event))
             .add_systems(
                 Update,

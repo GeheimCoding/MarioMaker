@@ -1,4 +1,5 @@
 use crate::level::characters::player::movement::systems::*;
+use crate::resources::AppState;
 use bevy::prelude::*;
 
 pub mod components;
@@ -16,6 +17,9 @@ impl Plugin for MovementPlugin {
                 (jump, gaze, crouch).chain().in_set(VerticalMovementActions),
             )
             .add_systems(Update, jump_on.in_set(ChangeDetection))
-            .add_systems(Update, (coyote_jump, reset_coyote_jump));
+            .add_systems(
+                Update,
+                (coyote_jump, reset_coyote_jump).run_if(in_state(AppState::Level)),
+            );
     }
 }
