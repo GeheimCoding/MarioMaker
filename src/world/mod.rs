@@ -15,6 +15,7 @@ impl Plugin for WorldPlugin {
             .add_systems(PreStartup, init)
             .add_systems(Startup, spawn)
             .add_systems(OnEnter(AppState::Editor), spawn_preview_block)
+            .add_systems(OnExit(AppState::Editor), despawn_preview_block)
             .add_systems(
                 Update,
                 (move_preview_block, handle_block_placement).run_if(in_state(AppState::Editor)),

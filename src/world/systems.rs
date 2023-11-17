@@ -48,6 +48,12 @@ pub fn spawn_preview_block(mut commands: Commands, textures: Res<Textures<Textur
     ));
 }
 
+pub fn despawn_preview_block(mut commands: Commands, query: Query<Entity, With<PreviewBlock>>) {
+    for preview_block in query.iter() {
+        commands.entity(preview_block).despawn();
+    }
+}
+
 pub fn move_preview_block(
     mouse_position: Res<MousePosition>,
     mut query: Query<&mut Transform, With<PreviewBlock>>,

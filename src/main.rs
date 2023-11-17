@@ -42,14 +42,16 @@ fn main() {
         ))
         .add_systems(Startup, setup_cameras)
         .add_systems(OnEnter(AppState::Editor), spawn_cursor)
+        .add_systems(OnExit(AppState::Editor), despawn_cursor)
         .add_systems(
             Update,
             (
                 animate,
-                apply_gravity.run_if(in_state(AppState::Level)),
-                update_mouse_position,
                 close_on_esc,
+                change_state,
+                update_mouse_position,
                 move_cursor.run_if(in_state(AppState::Editor)),
+                apply_gravity.run_if(in_state(AppState::Level)),
                 update_cursor_sprite.run_if(in_state(AppState::Editor)),
             ),
         )

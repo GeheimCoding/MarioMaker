@@ -60,6 +60,12 @@ pub fn spawn(
     ));
 }
 
+pub fn despawn(mut commands: Commands, query: Query<Entity, With<Beetle>>) {
+    for beetle in query.iter() {
+        commands.entity(beetle).despawn();
+    }
+}
+
 pub fn handle_velocity_change(
     mut query: Query<(&mut Direction, &Velocity), (With<Beetle>, Changed<Velocity>)>,
 ) {

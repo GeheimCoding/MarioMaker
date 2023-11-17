@@ -3,7 +3,7 @@ use crate::components::{
 };
 use crate::level::characters::components::Grabbed;
 use crate::level::characters::player::movement::components::JumpTimer;
-use crate::resources::MousePosition;
+use crate::resources::{AppState, MousePosition};
 use bevy::core_pipeline::clear_color::ClearColorConfig;
 use bevy::prelude::*;
 use bevy::render::view::RenderLayers;
@@ -58,6 +58,12 @@ pub fn spawn_cursor(
             ..default()
         },
     ));
+}
+
+pub fn despawn_cursor(mut commands: Commands, query: Query<Entity, With<Cursor>>) {
+    for cursor in query.iter() {
+        commands.entity(cursor).despawn();
+    }
 }
 
 pub fn animate(
@@ -134,5 +140,24 @@ pub fn update_cursor_sprite(
         cursor.index = 1;
     } else {
         cursor.index = 0;
+    }
+}
+
+pub fn change_state(
+    keyboard_input: Res<Input<KeyCode>>,
+    state: Res<State<AppState>>,
+    mut next_state: ResMut<NextState<AppState>>,
+) {
+    match state.get() {
+        AppState::Editor => {
+            if keyboard_input.just_pressed(KeyCode::L) {
+                next_state.set(AppState::Level);
+            }
+        }
+        AppState::Level => {
+            if keyboard_input.just_pressed(KeyCode::E) {
+                next_state.set(AppState::Editor);
+            }
+        }
     }
 }

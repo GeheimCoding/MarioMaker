@@ -15,6 +15,7 @@ impl Plugin for BeetlePlugin {
         app.init_resource::<Animations>()
             .add_systems(Startup, init)
             .add_systems(OnEnter(AppState::Level), spawn)
+            .add_systems(OnExit(AppState::Level), despawn)
             .add_systems(Update, (reset_jumpable, handle_grounded_event))
             .add_systems(
                 Update,

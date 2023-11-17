@@ -23,6 +23,15 @@ pub fn spawn_level_timer(mut commands: Commands, asset_server: ResMut<AssetServe
     commands.spawn(LevelTimer(Timer::from_seconds(time + 1.0, TimerMode::Once)));
 }
 
+pub fn despawn_level_timer(
+    mut commands: Commands,
+    query: Query<Entity, Or<(With<LevelTimer>, With<LevelTimerText>)>>,
+) {
+    for ui in query.iter() {
+        commands.entity(ui).despawn();
+    }
+}
+
 pub fn update_level_timer(
     time: Res<Time>,
     mut query: Query<&mut LevelTimer>,

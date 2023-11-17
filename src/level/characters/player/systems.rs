@@ -62,6 +62,12 @@ pub fn spawn(
     ));
 }
 
+pub fn despawn(mut commands: Commands, query: Query<Entity, With<Player>>) {
+    for player in query.iter() {
+        commands.entity(player).despawn();
+    }
+}
+
 pub fn handle_velocity_change(
     mut query: Query<
         (

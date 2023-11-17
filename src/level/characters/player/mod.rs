@@ -19,6 +19,7 @@ impl Plugin for PlayerPlugin {
             .add_plugins(MovementPlugin)
             .add_systems(Startup, init)
             .add_systems(OnEnter(AppState::Level), spawn)
+            .add_systems(OnExit(AppState::Level), despawn)
             .add_systems(
                 Update,
                 (grab, kick, kick_held_item).in_set(HorizontalMovementActions),
